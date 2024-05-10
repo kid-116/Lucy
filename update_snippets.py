@@ -36,7 +36,7 @@ def main() -> None:
     for file in files(ENTRY_DIR):
         name, snippet = generate_snippet(file)
         snippets[name] = snippet
-    json.dump(snippets, open(SNIPPET_FILE, 'w'))
+    json.dump(snippets, open(SNIPPET_FILE, 'w'), indent=2)
 
 
 if __name__ == '__main__':
