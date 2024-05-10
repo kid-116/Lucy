@@ -58,4 +58,23 @@ public:
     {
         return num_sets;
     }
+
+    vector<T> sets()
+    {
+        vector<T> sets;
+        for (auto const &[v, par] : parent)
+        {
+            if (par == v)
+            {
+                sets.push_back(v);
+            }
+        }
+        return sets;
+    }
+
+    int get_size(T v)
+    {
+        v = find_set(v);
+        return size[v];
+    }
 };
