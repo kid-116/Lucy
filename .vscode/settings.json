@@ -16,6 +16,10 @@
         "filesystem": "cpp",
         "iterator": "cpp",
         "map": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "iostream": "cpp",
+        "iosfwd": "cpp",
+        "__node_handle": "cpp",
+        "cmath": "cpp"
     }
 }
