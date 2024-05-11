@@ -4,7 +4,7 @@ class Point
     T x, y;
 
 public:
-    Point(T x, T y) : x(x), y(y) {}
+    Point(T x = 0, T y = 0) : x(x), y(y) {}
 
     friend std::istream &operator>>(std::istream &is, Point &p)
     {
