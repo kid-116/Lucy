@@ -21,6 +21,8 @@
         "iosfwd": "cpp",
         "__node_handle": "cpp",
         "cmath": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "__locale": "cpp",
+        "__string": "cpp"
     }
 }

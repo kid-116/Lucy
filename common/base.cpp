@@ -1,6 +1,11 @@
 #include <algorithm>
+#include <bitset>
 #include <cassert>
+#include <cmath>
 #include <iostream>
+#include <map>
+#include <numeric>
+#include <set>
 #include <vector>
 
 #define YES "Yes"
@@ -18,6 +23,8 @@
 #define vvl vector<vvl>
 
 #define all(vec) vec.begin(), vec.end()
+
+#define MOD 998244353
 
 using namespace std;
 

@@ -23,6 +23,10 @@ def generate_snippet(path: str) -> tuple[str, dict[str, str | list[str]]]:
     body = []
     with open(path, 'r') as f:
         for line in f:
+            if line.startswith(('#include', 'using')):
+                continue
+            if not body and not line:
+                continue
             body.append(line.strip('\n'))
     return name, {
         'scope': scope,
