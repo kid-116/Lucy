@@ -1,0 +1,45 @@
+[project]
+name = "lucy"
+version = "0.0.0"
+description = "CLI helper for CP contests."
+readme = "README.md"
+dependencies = [
+    "bs4",
+    "click",
+    "lxml",
+    "requests",
+    "selenium",
+]
+
+[project.optional-dependencies]
+lint = ["mypy", "pylint", "pylint[spelling]", "yapf"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+lucy = "lucy.main:cli"
+
+[tool.mypy]
+non_interactive = true
+install_types = true
+strict = true
+exclude = "build|venv"
+
+[tool.pylint]
+ignore = ["venv", "build"]
+[tool.pylint.'MESSAGES CONTROL']
+disable = "missing-module-docstring,missing-function-docstring,missing-class-docstring,missing-function-docstring"
+[tool.pylint.'SPELLING']
+spelling-dict = 'en_US'
+spelling-private-dict-file = 'private-dictionary.txt'
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 100
+[tool.yapfignore]
+ignore_patterns = ["venv/**"]
+
+# [tool.pytest.ini_options]
+# pythonpath = "."
