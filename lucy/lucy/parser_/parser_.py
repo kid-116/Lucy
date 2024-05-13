@@ -9,6 +9,3 @@ class Parser:
 
     def __init__(self, tasks: list[Task]):
         self.tasks = tasks
-
-    def tasks(self) -> list[Task]:
-        return self.tasks

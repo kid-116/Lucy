@@ -17,12 +17,14 @@ class AtCoderParser(Parser):
         for i, (input, output) in enumerate(utils.batched(task_page.select('pre[id]'), 2)):
             num_samples += 1
 
-            in_path = Config.get_sample_path(Website.ATCODER, self.contest_id, task_id, SampleType.IN, i)
+            in_path = Config.get_sample_path(Website.ATCODER, self.contest_id, task_id,
+                                             SampleType.IN, i)
             os.makedirs(os.path.dirname(in_path), exist_ok=True)
             with open(in_path, 'w', encoding='utf-8') as f:
                 f.write(input.text)
 
-            out_path = Config.get_sample_path(Website.ATCODER, self.contest_id, task_id, SampleType.OUT, i)
+            out_path = Config.get_sample_path(Website.ATCODER, self.contest_id, task_id,
+                                              SampleType.OUT, i)
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
             with open(out_path, 'w', encoding='utf-8') as f:
                 f.write(output.text)
