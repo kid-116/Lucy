@@ -1,12 +1,14 @@
 #include <algorithm>
-#include <bitset>
-#include <cassert>
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <numeric>
-#include <set>
-#include <vector>
+#include <bitset>    //
+#include <cassert>   //
+#include <cmath>     //
+#include <iostream>  //
+#include <map>       //
+#include <numeric>   //
+#include <set>       //
+#include <vector>    //
+
+using namespace std; //
 
 #define YES "Yes"
 #define NO "No"
@@ -26,8 +28,6 @@
 
 #define MOD 998244353
 
-using namespace std;
-
 template <typename T, typename U>
 istream &operator>>(istream &is, pair<T, U> &p)
 {
@@ -42,6 +42,22 @@ istream &operator>>(istream &is, vector<T> &vec)
         is >> ele;
     }
     return is;
+}
+
+template <typename T>
+ostream &operator<<(ostream &os, const vector<T> &vec)
+{
+    for (auto const &ele : vec)
+    {
+        os << ele << " ";
+    }
+    return os;
+}
+template <typename T, typename U>
+ostream &operator<<(ostream &os, const pair<T, U> &p)
+{
+    os << p.second << "(" << p.first << ")" << " ";
+    return os;
 }
 
 int main()
