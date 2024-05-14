@@ -7,18 +7,18 @@ solutions.
 
 ## Support Languages
 - [x] C++
-- [] Python
+- [ ] Python
 
 ## Supported Platforms
 - [x] AtCoder
-- [] Codeforces
+- [ ] Codeforces
 
 ## Featues
 - [x] Fetch Sample Test Cases
 - [x] Test Solution
 - [x] Setup Snippets
-- [] Submit Solution
-- [] What else? 🤔
+- [ ] Submit Solution
+- [ ] What else? 🤔
 
 ## Getting Started
 1. Set the environment variable `$LUCY_HOME` as preferred.
