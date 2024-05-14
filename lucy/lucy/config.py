@@ -31,7 +31,7 @@ class SampleType(Enum):
 class Config:
     WEBSITE_HOST = {Website.ATCODER: 'https://atcoder.jp'}
 
-    LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv('HOME')}/.lucy'
+    LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'
     LUCY_HOME = os.path.abspath(LUCY_HOME)
     os.makedirs(LUCY_HOME, exist_ok=True)
 
