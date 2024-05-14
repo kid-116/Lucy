@@ -1,5 +1,5 @@
 [project]
-name = "lucy"
+name = "lucy01"
 version = "0.0.0"
 description = "CLI helper for CP contests."
 readme = "README.md"

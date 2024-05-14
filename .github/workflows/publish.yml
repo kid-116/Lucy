@@ -11,7 +11,7 @@ on:
 
 jobs:
     pypi-publish:
-      name: upload release to PyPI
+      name: Upload release to PyPI
       runs-on: ubuntu-latest
       # Specifying a GitHub environment is optional, but strongly encouraged
       # environment: release
@@ -21,6 +21,9 @@ jobs:
       strategy:
         matrix:
           python-version: ["3.10"]
+      environment:
+        name: release
+        url: https://pypi.org/p/Lucy01
       steps:
         - uses: actions/checkout@v3
         - name: Set up Python ${{ matrix.python-version }}
