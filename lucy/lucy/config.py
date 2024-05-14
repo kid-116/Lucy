@@ -31,9 +31,7 @@ class SampleType(Enum):
 class Config:
     WEBSITE_HOST = {Website.ATCODER: 'https://atcoder.jp'}
 
-    LUCY_HOME = os.getenv('LUCY_HOME')
-    if not LUCY_HOME:
-        raise ValueError('`$LUCY_HOME` not set!')
+    LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'
     LUCY_HOME = os.path.abspath(LUCY_HOME)
     os.makedirs(LUCY_HOME, exist_ok=True)
 
@@ -45,7 +43,8 @@ class Config:
     os.makedirs(COMMONS_PATH, exist_ok=True)
 
     TEMPLATE_PATH = f'{COMMONS_PATH}/base.cpp'
-    os.makedirs(COMMONS_PATH, exist_ok=True)
+    with open(TEMPLATE_PATH, 'w+', encoding='utf-8'):
+        pass
 
     CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
 

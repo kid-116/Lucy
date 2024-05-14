@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - lucy/**
-      - .github/workflows/**
   workflow_dispatch:
 
 jobs:

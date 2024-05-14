@@ -1,6 +1,6 @@
 [project]
 name = "lucy01"
-version = "0.0.0"
+version = "0.0.1"
 description = "CLI companion for CP."
 readme = "README.md"
 dependencies = [
