@@ -1,7 +1,7 @@
 [project]
 name = "lucy01"
 version = "0.0.0"
-description = "CLI helper for CP contests."
+description = "CLI companion for CP."
 readme = "README.md"
 dependencies = [
     "bs4",
