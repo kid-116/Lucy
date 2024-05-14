@@ -43,8 +43,9 @@ class Config:
     os.makedirs(COMMONS_PATH, exist_ok=True)
 
     TEMPLATE_PATH = f'{COMMONS_PATH}/base.cpp'
-    with open(TEMPLATE_PATH, 'w+', encoding='utf-8'):
-        pass
+    if not os.path.exists(TEMPLATE_PATH):
+        with open(TEMPLATE_PATH, 'w+', encoding='utf-8'):
+            pass
 
     CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
 
