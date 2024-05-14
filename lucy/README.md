@@ -23,7 +23,7 @@ solutions.
 ## Installation
 
 ## Getting Started
-1. Set the environment variable `$LUCY_HOME` as preferred.
+1. Set the environment variable `$LUCY_HOME` as preferred. By default, it uses the `~/.lucy`.
 2. Get help!
     ```
     lucy --help
