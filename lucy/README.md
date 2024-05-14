@@ -68,4 +68,4 @@ the `common` folder to be inserted into your solution using just the filename pr
     lucy updated-snippets
     ```
 
-    ![Snippets](../public/videos/using_snippets.webm.mov)
+[Using Snippets](https://github.com/kid-116/CP/assets/75692643/167e028d-b7c0-461a-8c92-05a8df9fdaf6)
