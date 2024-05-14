@@ -57,4 +57,4 @@ $LUCY_HOME
 
 - Lucy organizes your competitive programming workspace with a clear directory structure. Besides folders for specific contests and their solutions with `tests`, a key element is the `common` directory. This folder stores reusable code snippets (*.cpp) in subfolders like structures and text. These snippets can be easily inserted into your solution files using filename prefixes thanks to the `cp.code-snippets` file in the `.vscode` folder. This file, automatically generated with `lucy update-snippets`,  facilitates code completion within Visual Studio Code.
 
-    [Using Snippets](https://github.com/kid-116/CP/assets/75692643/167e028d-b7c0-461a-8c92-05a8df9fdaf6)
+  [Using Snippets](https://github.com/kid-116/CP/assets/75692643/3636b6f1-ad58-4bd7-8cb1-2c700f8a5b72)
