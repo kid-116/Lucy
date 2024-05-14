@@ -1,6 +1,6 @@
 from lucy.config import Website
 
-from .atcoder import AtCoderParser
+from lucy.parser_.atcoder import AtCoderParser
 
 
 class Contest:

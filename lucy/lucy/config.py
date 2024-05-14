@@ -2,7 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import os
-from typing import Optional
 
 import click
 
@@ -32,47 +31,25 @@ class SampleType(Enum):
 class Config:
     WEBSITE_HOST = {Website.ATCODER: 'https://atcoder.jp'}
 
-    LUCY_ROOT = '.lucy'
-    LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.path.dirname(__file__)}/../../'
+    LUCY_HOME = os.getenv('LUCY_HOME')
+    if not LUCY_HOME:
+        raise ValueError('`$LUCY_HOME` not set!')
     LUCY_HOME = os.path.abspath(LUCY_HOME)
-    LUCY_STORAGE = os.path.abspath(f'{LUCY_HOME}/{LUCY_ROOT}')
+    os.makedirs(LUCY_HOME, exist_ok=True)
 
-    SNIPPETS_PATH = os.path.abspath(f'{LUCY_HOME}/.vscode/cp.code-snippets')
+    SNIPPETS_DIR = f'{LUCY_HOME}/.vscode'
+    os.makedirs(SNIPPETS_DIR, exist_ok=True)
+    SNIPPETS_PATH = os.path.abspath(f'{SNIPPETS_DIR}/cp.code-snippets')
+
     COMMONS_PATH = os.path.abspath(f'{LUCY_HOME}/common')
+    os.makedirs(COMMONS_PATH, exist_ok=True)
 
     TEMPLATE_PATH = f'{COMMONS_PATH}/base.cpp'
+    os.makedirs(COMMONS_PATH, exist_ok=True)
 
     CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
 
-    IMPLEMENTATION_MAIN = 'main.cpp'
-    COMPLILED_FILE_NAME = 'main'
+    IMPL_MAIN = 'main.cpp'
+    IMPL_BIN = 'main'
 
-    @staticmethod
-    def get_sample_path(website: Website, contest_id: str, task_id: str, type_: SampleType,
-                        idx: int) -> str:
-        return f'{Config.get_samples_root(website, contest_id, task_id, type_)}/{type_}{idx:02d}.txt'
-
-    @staticmethod
-    def get_samples_root(website: Website,
-                         contest_id: str,
-                         task_id: Optional[str] = None,
-                         sample_type: Optional[SampleType] = None) -> str:
-        samples_root = f'{Config.LUCY_STORAGE}/{website}/{contest_id.lower()}'
-        if task_id:
-            samples_root += f'/{task_id}'
-            if sample_type:
-                samples_root += f'/{sample_type}'
-        return samples_root
-
-    @staticmethod
-    def get_implementation_root(website: Website,
-                                contest_id: str,
-                                task_id: Optional[str] = None) -> str:
-        implementation_root = f'{Config.LUCY_HOME}/{website}/{contest_id.upper()}'
-        if task_id:
-            implementation_root += f'/{task_id}'
-        return implementation_root
-
-    @staticmethod
-    def get_implementation_path(website: Website, contest_id: str, task_id: str) -> str:
-        return f'{Config.get_implementation_root(website, contest_id)}/{task_id}/{Config.IMPLEMENTATION_MAIN}'
+    SAMPLES_DIR = 'tests'
