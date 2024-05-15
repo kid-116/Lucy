@@ -1,6 +1,6 @@
 from __future__ import annotations
 import subprocess
-from typing import Optional
+from typing import Optional, Tuple
 
 import click
 
@@ -31,7 +31,7 @@ class Tester:
     def __compile(self) -> None:
         subprocess.check_call(['g++', self.impl_path, '-o', self.bin_path])
 
-    def __exec(self, in_txt: str, truth_txt: str) -> bool:
+    def __exec(self, in_txt: str, truth_txt: str) -> Tuple[bool, str]:
         with subprocess.Popen([self.bin_path], stdin=subprocess.PIPE,
                               stdout=subprocess.PIPE) as process:
             assert process.stdin
@@ -40,18 +40,26 @@ class Tester:
             assert process.stdout
             out_txt = process.stdout.read().decode()
             process.wait()
-        return out_txt.strip() == truth_txt.strip()
+        return out_txt.strip() == truth_txt.strip(), out_txt
 
-    def run(self) -> None:
+    def run(self, verbose: bool = False) -> None:
         self.__compile()
 
-        for i, (in_txt, out_txt) in zip(
+        for i, (in_txt, truth_txt) in zip(
                 self.test_ids,
                 LocalFS.tests(self.website, self.contest_id, self.task_id, self.test_ids)):
             click.echo(f'Test#{i:02d}', nl=False)
             click.echo(f'{"." * 50}', nl=False)
-            passes = self.__exec(in_txt, out_txt)
+            passes, out_txt = self.__exec(in_txt, truth_txt)
             if passes:
                 click.secho('AC', bg='green')
             else:
                 click.secho('WA', bg='red')
+                if verbose:
+                    click.secho("Input:", bg='white', bold=True)
+                    print(in_txt.strip())
+                    click.secho("Output:", bg='red', bold=True)
+                    print(out_txt.strip())
+                    click.secho("Expected:", bg='green', bold=True)
+                    print(truth_txt.strip())
+
