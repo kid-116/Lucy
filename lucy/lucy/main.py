@@ -59,7 +59,8 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
 @click.argument('contest_id')
 @click.argument('task_id')
 @click.argument('test_id', default=None, type=int, required=False)
-def test(site: str, contest_id: str, task_id: str, test_id: Optional[int]) -> None:
+@click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
+def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool) -> None:
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
-    tester.run()
+    tester.run(verbose)
