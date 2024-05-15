@@ -51,7 +51,7 @@ class LocalFS:
 
     @staticmethod
     def get_new_sample_paths(website: Website, contest_id: str,
-                             task_id: str) -> Tuple[str, str, str]:
+                             task_id: str) -> Tuple[str, str, int]:
         idx = LocalFS.num_samples(website, contest_id, task_id)
         in_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.IN, idx)
         out_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.OUT, idx)

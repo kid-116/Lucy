@@ -62,4 +62,3 @@ class Tester:
                     print(out_txt.strip())
                     click.secho("Expected:", bg='green', bold=True)
                     print(truth_txt.strip())
-
