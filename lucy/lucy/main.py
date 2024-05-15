@@ -1,5 +1,6 @@
+import importlib.metadata
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import click
 
@@ -12,7 +13,9 @@ from lucy.tester import Tester
 
 
 @click.group()
-def cli() -> None:
+@click.version_option(importlib.metadata.version('lucy01'))
+@click.pass_context
+def cli(_: Any) -> None:
     LocalFS.setup()
 
 
