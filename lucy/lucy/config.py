@@ -4,6 +4,9 @@ from enum import Enum
 import os
 
 import click
+import dotenv
+
+dotenv.load_dotenv()
 
 
 class Website(Enum):
@@ -33,19 +36,13 @@ class Config:
 
     LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'
     LUCY_HOME = os.path.abspath(LUCY_HOME)
-    os.makedirs(LUCY_HOME, exist_ok=True)
 
     SNIPPETS_DIR = f'{LUCY_HOME}/.vscode'
-    os.makedirs(SNIPPETS_DIR, exist_ok=True)
-    SNIPPETS_PATH = os.path.abspath(f'{SNIPPETS_DIR}/cp.code-snippets')
+    SNIPPETS_PATH = f'{SNIPPETS_DIR}/cp.code-snippets'
 
-    COMMONS_PATH = os.path.abspath(f'{LUCY_HOME}/common')
-    os.makedirs(COMMONS_PATH, exist_ok=True)
+    COMMONS_DIR = os.path.abspath(f'{LUCY_HOME}/common')
 
-    TEMPLATE_PATH = f'{COMMONS_PATH}/base.cpp'
-    if not os.path.exists(TEMPLATE_PATH):
-        with open(TEMPLATE_PATH, 'w+', encoding='utf-8'):
-            pass
+    TEMPLATE_PATH = f'{COMMONS_DIR}/base.cpp'
 
     CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
 
@@ -53,3 +50,9 @@ class Config:
     IMPL_BIN = 'main'
 
     SAMPLES_DIR = 'tests'
+
+    DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
+
+    # pylint: disable=line-too-long
+    ATCODER_TESTCASES_DROPBOX_LINK = 'https://www.dropbox.com/sh/nx3tnilzqz7df8a/AAAYlTq2tiEHl5hsESw6-yfLa?dl=0'
+    # pylint: enable=line-too-long

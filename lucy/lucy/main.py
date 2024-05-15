@@ -1,25 +1,26 @@
 import os
-import shutil
 from typing import Optional
 
 import click
 
-from lucy import update_snippets as us, utils
+from lucy import update_snippets as us
+from lucy.config import Config, SampleType, Website
+from lucy.dbx_client import DropboxClient
+from lucy.filesystem import LocalFS
+from lucy.parser_.contest import ContestParser
 from lucy.tester import Tester
-from lucy.config import Config, Website
-from lucy.parser_.contest import Contest
 
 
 @click.group()
 def cli() -> None:
-    pass
+    LocalFS.setup()
 
 
 @cli.command('update-snippets')
 @click.option('-ed',
               '--entry-dir',
               'entry_dir_',
-              default=Config.COMMONS_PATH,
+              default=Config.COMMONS_DIR,
               type=click.Path(exists=True))
 @click.option('-o', '--out', 'out', default=Config.SNIPPETS_PATH, type=click.Path())
 def update_snippets(entry_dir_: str, out: str) -> None:
@@ -34,13 +35,23 @@ def update_snippets(entry_dir_: str, out: str) -> None:
 @cli.command('setup')
 @click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
 @click.argument('contest_id')
-def setup(site: str, contest_id: str) -> None:
+@click.argument('task_id', required=False, default=None, type=str)
+@click.argument('test_id', required=False, default=None, type=str)
+def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
     website = Website.from_string(site)
-    contest_ = Contest(website, contest_id)
+    if test_id is not None:
+        assert task_id is not None
+        if website != Website.ATCODER:
+            raise NotImplementedError()
+        in_path, out_path, idx = LocalFS.get_new_sample_paths(website, contest_id, task_id)
+        DropboxClient().download(f'/{contest_id}/{task_id}/{SampleType.IN}/{test_id}', in_path)
+        DropboxClient().download(f'/{contest_id}/{task_id}/{SampleType.OUT}/{test_id}', out_path)
+        click.secho(f'Stored sample {test_id} as Test#{idx:02d}.', fg='green', bold=True)
+        return
+    contest_ = ContestParser(website, contest_id, task_id)
     for task in contest_.parser.tasks:
-        impl_path = utils.get_impl_path(website, contest_id, task.id_)
-        if not os.path.exists(impl_path):
-            shutil.copy(Config.TEMPLATE_PATH, impl_path)
+        LocalFS.store_samples(website, contest_id, task)
+        LocalFS.create_impl_file(website, contest_id, task.id_)
 
 
 @cli.command('test')
