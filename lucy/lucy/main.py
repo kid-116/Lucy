@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import Optional
 
 import click
 
@@ -46,7 +47,8 @@ def setup(site: str, contest_id: str) -> None:
 @click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
 @click.argument('contest_id')
 @click.argument('task_id')
-def test(site: str, contest_id: str, task_id: str) -> None:
+@click.argument('test_id', default=None, type=int, required=False)
+def test(site: str, contest_id: str, task_id: str, test_id: Optional[int]) -> None:
     website = Website.from_string(site)
-    tester = Tester(website, contest_id, task_id)
+    tester = Tester(website, contest_id, task_id, test_id)
     tester.run()

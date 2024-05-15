@@ -12,13 +12,20 @@ from lucy.config import SampleType, Website
 # pylint: disable=too-few-public-methods
 class Tester:
 
-    def __init__(self, website: Website, contest_id: str, task_id: str) -> None:
+    def __init__(self, website: Website, contest_id: str, task_id: str, test_id: int) -> None:
         self.website = website
         self.contest_id = contest_id
         self.task_id = task_id
 
         self.num_tests = len(
             os.listdir(utils.get_sample_path(website, contest_id, task_id, SampleType.IN)))
+
+        if test_id is None:
+            self.test_ids = range(self.num_tests)
+        else:
+            if test_id < 0 or test_id >= self.num_tests:
+                raise ValueError("Invalid `test_id`")
+            self.test_ids = [test_id]
 
         self.impl_path = utils.get_impl_path(website, contest_id, task_id)
         self.bin_path = utils.get_impl_path(website, contest_id, task_id, bin_=True)
@@ -31,13 +38,13 @@ class Tester:
         with open(path) as f:  # pylint: disable=unspecified-encoding
             return f.read()
 
-    def __tests(self) -> Generator[Tuple[str, str], None, None]:
-        for idx in range(self.num_tests):
+    def __tests(self) -> Generator[Tuple[int, Tuple[str, str]], None, None]:
+        for idx in self.test_ids:
             in_path = utils.get_sample_path(self.website, self.contest_id, self.task_id,
                                             SampleType.IN, idx)
             out_path = utils.get_sample_path(self.website, self.contest_id, self.task_id,
                                              SampleType.OUT, idx)
-            yield (Tester.__read(in_path), Tester.__read(out_path))
+            yield idx, (Tester.__read(in_path), Tester.__read(out_path))
 
     def __exec(self, in_txt: str, truth_txt: str) -> bool:
         with subprocess.Popen([self.bin_path], stdin=subprocess.PIPE,
@@ -53,7 +60,7 @@ class Tester:
     def run(self) -> None:
         self.__compile()
 
-        for i, (in_txt, out_txt) in enumerate(self.__tests()):
+        for i, (in_txt, out_txt) in self.__tests():
             click.echo(f'Test#{i:02d}', nl=False)
             click.echo(f'{"." * 50}', nl=False)
             passes = self.__exec(in_txt, out_txt)
