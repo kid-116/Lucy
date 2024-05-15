@@ -51,8 +51,10 @@ class Config:
 
     SAMPLES_DIR = 'tests'
 
-    DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
-
     # pylint: disable=line-too-long
+    DROPBOX_TOKEN = os.getenv(
+        'DROPBOX_TOKEN'
+    ) or 'sl.B1Rp-zCsGfT8Pd3K_LSV-CduAGyJrBbltWKlly2JvHDzRf3u9AG68md6obRbVyoygMgytF_2L5SYoLijtyQ99qsHH9d9r1SdomNlWZk7uyPTpN4TxhtvnRlbuEfXfpGPF285E61xlXNz'
+
     ATCODER_TESTCASES_DROPBOX_LINK = 'https://www.dropbox.com/sh/nx3tnilzqz7df8a/AAAYlTq2tiEHl5hsESw6-yfLa?dl=0'
     # pylint: enable=line-too-long
