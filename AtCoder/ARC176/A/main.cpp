@@ -1,12 +1,12 @@
 #include <algorithm>
-#include <bitset>    //
-#include <cassert>   //
-#include <cmath>     //
-#include <iostream>  //
-#include <map>       //
-#include <numeric>   //
-#include <set>       //
-#include <vector>    //
+#include <bitset>   //
+#include <cassert>  //
+#include <cmath>    //
+#include <iostream> //
+#include <map>      //
+#include <numeric>  //
+#include <set>      //
+#include <vector>   //
 
 using namespace std; //
 
@@ -60,10 +60,57 @@ ostream &operator<<(ostream &os, const pair<T, U> &p)
     return os;
 }
 
+short last_digit_2_pow(lli exp) {
+    switch (exp % 4)
+    {
+    case 0:
+        return 6;
+    case 1:
+        return 2;
+    case 2:
+        return 4;
+    case 3:
+        return 8;
+    }
+}
+
+short solve(lli N, lli M, lli K)
+{
+    lli a = N - K;
+    lli b = M - K;
+    if (a < 0)
+    {
+        return 1;
+    }
+    if (b > a)
+    {
+        if (a == 0 && b == 1)
+        {
+            return 0;
+        }
+        else
+        {
+            if (a == 0)
+            {
+                return 1;
+            }
+            return last_digit_2_pow(a);
+        }
+    }
+    return last_digit_2_pow(a - b);
+}
+
 int main()
 {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
-
+    int T;
+    cin >> T;
+    while (T--)
+    {
+        lli N, M, K;
+        cin >> N >> M >> K;
+        cout << solve(N, M, K) << "\n";
+    }
     return 0;
 }
