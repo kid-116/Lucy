@@ -26,13 +26,17 @@ def cli(_: Any) -> None:
               default=Config.COMMONS_DIR,
               type=click.Path(exists=True))
 @click.option('-o', '--out', 'out', default=Config.SNIPPETS_PATH, type=click.Path())
-def update_snippets(entry_dir_: str, out: str) -> None:
+@click.option('-g', '--global', 'global_', default=False, is_flag=True)
+def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
     entry_dir_ = os.path.abspath(entry_dir_)
     out = os.path.abspath(out)
     snippets = us.run(entry_dir_, out)
     click.secho(f'Found {len(snippets)} snippets.', fg='green', bold=True)
     for snippet in snippets:
         click.echo(snippet)
+    if global_:
+        os.symlink(out,
+                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{Config.SNIPPETS_FILE_NAME}')
 
 
 @cli.command('setup')
