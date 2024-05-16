@@ -62,12 +62,37 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
 
 
 @cli.command('test')
-@click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
-@click.argument('contest_id')
-@click.argument('task_id')
+@click.argument('site', type=Config.CLI_WEBSITE_CHOICE, required=True)
+@click.argument('contest_id', type=str, required=True)
+@click.argument('task_id', type=str, required=True)
 @click.argument('test_id', default=None, type=int, required=False)
 @click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
 def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool) -> None:
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
+    click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose)
+
+
+@cli.command('active-test')
+@click.argument('test_id', default=None, type=int, required=False)
+@click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
+@click.pass_context
+def active_test(ctx: Any, test_id: Optional[int], verbose: bool) -> None:
+    site, contest_id, task_id = LocalFS.parse_active_path()
+    if not site:
+        click.secho('Could not determine `site`.', fg='red', bold=True, err=True)
+        return
+    if not contest_id:
+        click.secho('Could not determine `contest_id`.', fg='red', bold=True, err=True)
+        return
+    if not task_id:
+        click.secho('Could not determine `task_id`.', fg='red', bold=True, err=True)
+        return
+
+    ctx.invoke(test,
+               site=site,
+               contest_id=contest_id,
+               task_id=task_id,
+               test_id=test_id,
+               verbose=verbose)
