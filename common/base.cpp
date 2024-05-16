@@ -1,69 +1,66 @@
 #include <algorithm>
-#include <bitset>    //
-#include <cassert>   //
-#include <cmath>     //
-#include <iostream>  //
-#include <map>       //
-#include <numeric>   //
-#include <set>       //
-#include <vector>    //
+#include <bitset>
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <queue>
+#include <set>
+#include <vector>
 
-using namespace std; //
+using namespace std;
 
 #define YES "Yes"
 #define NO "No"
 
 #define lli long long
 
-#define vs vector<short>
-#define vvs vector<vs>
+#define v16 vector<short>
+#define vv16 vector<vs>
 #define vb vector<bool>
 #define vvb vector<vb>
-#define vi vector<int>
-#define vvi vector<vi>
-#define vl vector<lli>
-#define vvl vector<vvl>
+#define v32 vector<int>
+#define vv32 vector<vi>
+#define v64 vector<lli>
+#define vv64 vector<vl>
+#define vc vector<char>
+#define vvc vector<vc>
+#define vs vector<string>
 
 #define all(vec) vec.begin(), vec.end()
 
 #define MOD 998244353
 
 template <typename T, typename U>
-istream &operator>>(istream &is, pair<T, U> &p)
-{
-    is >> p.first >> p.second;
-    return is;
+istream &operator>>(istream &is, pair<T, U> &p) {
+  is >> p.first >> p.second;
+  return is;
 }
 template <typename T>
-istream &operator>>(istream &is, vector<T> &vec)
-{
-    for (T &ele : vec)
-    {
-        is >> ele;
-    }
-    return is;
+istream &operator>>(istream &is, vector<T> &vec) {
+  for (T &ele : vec) {
+    is >> ele;
+  }
+  return is;
 }
 
 template <typename T>
-ostream &operator<<(ostream &os, const vector<T> &vec)
-{
-    for (auto const &ele : vec)
-    {
-        os << ele << " ";
-    }
-    return os;
+ostream &operator<<(ostream &os, const vector<T> &vec) {
+  for (auto const &ele : vec) {
+    os << ele << " ";
+  }
+  return os;
 }
 template <typename T, typename U>
-ostream &operator<<(ostream &os, const pair<T, U> &p)
-{
-    os << p.second << "(" << p.first << ")" << " ";
-    return os;
+ostream &operator<<(ostream &os, const pair<T, U> &p) {
+  os << p.second << "(" << p.first << ")" << " ";
+  return os;
 }
 
-int main()
-{
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
+int main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
 
-    return 0;
+  return 0;
 }

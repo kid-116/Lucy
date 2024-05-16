@@ -118,3 +118,27 @@ class LocalFS:
             in_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.IN, idx)
             out_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.OUT, idx)
             yield LocalFS.read(in_path), LocalFS.read(out_path)
+
+    @staticmethod
+    def parse_active_path() -> Tuple[Optional[str], Optional[str], Optional[str]]:
+        site = None
+        contest_id = None
+        task_id = None
+
+        active_path = os.path.realpath(os.getcwd())
+        home_dir = os.path.realpath(Config.LUCY_HOME)
+        if active_path.startswith(home_dir):
+            active_path = active_path[len(home_dir):]
+            active_path = active_path.lstrip('/')
+
+            parts = active_path.split('/')[:3]
+            if len(parts) >= 1:
+                site = parts[0]
+            if len(parts) >= 2:
+                contest_id = parts[1]
+            if len(parts) >= 3:
+                task_id = parts[2]
+            if site:
+                site = site.lower()
+
+        return site, contest_id, task_id

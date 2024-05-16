@@ -11,6 +11,8 @@ from lucy.filesystem import LocalFS
 from lucy.parser_.contest import ContestParser
 from lucy.tester import Tester
 
+# pylint: disable=too-many-arguments
+
 
 @click.group()
 @click.version_option(importlib.metadata.version('lucy01'))
@@ -26,13 +28,17 @@ def cli(_: Any) -> None:
               default=Config.COMMONS_DIR,
               type=click.Path(exists=True))
 @click.option('-o', '--out', 'out', default=Config.SNIPPETS_PATH, type=click.Path())
-def update_snippets(entry_dir_: str, out: str) -> None:
+@click.option('-g', '--global', 'global_', default=False, is_flag=True)
+def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
     entry_dir_ = os.path.abspath(entry_dir_)
     out = os.path.abspath(out)
     snippets = us.run(entry_dir_, out)
     click.secho(f'Found {len(snippets)} snippets.', fg='green', bold=True)
     for snippet in snippets:
         click.echo(snippet)
+    if global_:
+        os.symlink(out,
+                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{Config.SNIPPETS_FILE_NAME}')
 
 
 @cli.command('setup')
@@ -58,12 +64,41 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
 
 
 @cli.command('test')
-@click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
-@click.argument('contest_id')
-@click.argument('task_id')
+@click.argument('site', type=Config.CLI_WEBSITE_CHOICE, required=True)
+@click.argument('contest_id', type=str, required=True)
+@click.argument('task_id', type=str, required=True)
 @click.argument('test_id', default=None, type=int, required=False)
+@click.option('-c', '--continue', 'continue_', is_flag=True, default=False)
 @click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
-def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool) -> None:
+def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool,
+         continue_: bool) -> None:
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
-    tester.run(verbose)
+    click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
+    tester.run(verbose, continue_)
+
+
+@cli.command('active-test')
+@click.argument('test_id', default=None, type=int, required=False)
+@click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
+@click.option('-c', '--continue', 'continue_', is_flag=True, default=False)
+@click.pass_context
+def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
+    site, contest_id, task_id = LocalFS.parse_active_path()
+    if not site:
+        click.secho('Could not determine `site`.', fg='red', bold=True, err=True)
+        return
+    if not contest_id:
+        click.secho('Could not determine `contest_id`.', fg='red', bold=True, err=True)
+        return
+    if not task_id:
+        click.secho('Could not determine `task_id`.', fg='red', bold=True, err=True)
+        return
+
+    ctx.invoke(test,
+               site=site,
+               contest_id=contest_id,
+               task_id=task_id,
+               test_id=test_id,
+               verbose=verbose,
+               continue_=continue_)
