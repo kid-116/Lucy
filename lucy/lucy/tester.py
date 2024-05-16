@@ -42,7 +42,7 @@ class Tester:
             process.wait()
         return out_txt.strip() == truth_txt.strip(), out_txt
 
-    def run(self, verbose: bool = False) -> None:
+    def run(self, verbose: bool = False, continue_: bool = False) -> None:
         self.__compile()
 
         for i, (in_txt, truth_txt) in zip(
@@ -62,3 +62,5 @@ class Tester:
                     print(out_txt.strip())
                     click.secho("Expected:", bg='green', bold=True)
                     print(truth_txt.strip())
+                if not continue_:
+                    break
