@@ -36,9 +36,11 @@ class Config:
 
     LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'
     LUCY_HOME = os.path.abspath(LUCY_HOME)
+    assert os.path.isdir(LUCY_HOME)
 
     SNIPPETS_DIR = f'{LUCY_HOME}/.vscode'
-    SNIPPETS_PATH = f'{SNIPPETS_DIR}/cp.code-snippets'
+    SNIPPETS_FILE_NAME = 'cp.code-snippets'
+    SNIPPETS_PATH = f'{SNIPPETS_DIR}/{SNIPPETS_FILE_NAME}'
 
     COMMONS_DIR = os.path.abspath(f'{LUCY_HOME}/common')
 
