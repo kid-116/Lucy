@@ -22,6 +22,21 @@ solutions.
 - [ ] What else? 🤔
 
 ## Installation
+```
+pip install lucy01
+```
+
+## Environment Variables
+- `LUCY_HOME`
+
+    Specify home directory for `lucy`.
+
+- `DROPBOX_TOKEN`
+
+    Dropbox developer access token with `sharing.read` permission. It can be generated at
+    [DBX Platform for Developers](https://www.dropbox.com/developers). This is necessary to fetch
+    hidden AtCoder test cases releaved after the contest has ended. All AtCoder test cases may be
+    found [here](https://www.dropbox.com/sh/nx3tnilzqz7df8a/AAAYlTq2tiEHl5hsESw6-yfLa?dl=0).
 
 ## Getting Started
 1. Set the environment variable `$LUCY_HOME` as preferred. By default, it uses the `~/.lucy`.
@@ -29,6 +44,7 @@ solutions.
     ```
     lucy --help
     ```
+    Check out the [documentation]().
 
 ## Directory Structure
 ```
@@ -37,29 +53,24 @@ $LUCY_HOME
 │   └── cp.code-snippets*
 ├── AtCoder
 │   └── {ARC177}
-│       └──{A}
-│           ├── main
-│           ├── tests
-│           │   ├── in
-│           │   │   ├── {00.txt}
-│           │   │   ├── {01.txt}
-│           │   └── out
-│           │       ├── {00.txt}
-│           │       ├── {01.txt}
-│           └── main.cpp
+│       ├──{A}
+│       │   ├── main
+│       │   ├── tests
+│       │   │   ├── in
+│       │   │   │   ├── {00.txt}
+│       │   │   │   └── ...
+│       │   │   └── out
+│       │   │       ├── {00.txt}
+│       │   │       └── ...
+│       │   └── main.cpp
+│       └──...
 ├── Codeforces
 └── common*
     ├── base.cpp*
     ├── structures
     │   ├── grid.cpp
-    │   ├── linked_list.cpp
-    │   ├── point.cpp
-    │   ├── tree.cpp
-    │   ├── trie.cpp
-    │   └── union_find.cpp
-    └── text
-        ├── is_subseq.cpp
-
+    │   └── ...
+    └── ...
 ```
 
 - Lucy organizes your competitive programming workspace with a clear directory structure. Besides folders for specific contests and their solutions with `tests`, a key element is the `common` directory. This folder stores reusable code snippets `(*.cpp)`. These snippets can be easily inserted into your solution files using filename prefixes thanks to the `cp.code-snippets` file in the `.vscode` folder. This file, automatically generated with `lucy update-snippets`,  facilitates code completion within Visual Studio Code.

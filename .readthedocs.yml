@@ -1,0 +1,23 @@
+version: 2
+
+python:
+  install:
+    - method: pip
+      path: lucy
+      extra_requirements:
+        - docs
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+  jobs:
+    post_create_environment:
+      - cd lucy
+      - mdclick dumps --baseModule=lucy.main --baseCommand=lucy --docsPath=./docs/commands
+      - cp README.md ./docs
+
+formats: all
+
+mkdocs:
+  configuration: lucy/mkdocs.yml
