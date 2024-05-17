@@ -5,6 +5,8 @@ tasks. It automatically fetches sample tests, sets up directories, and lets you 
 just a few commands, streamlining your workflow and letting you focus on writing brilliant
 solutions.
 
+[Demo.webm](https://github.com/kid-116/Lucy/assets/75692643/1b7195f7-fcd3-4e05-b23e-48061f6ef1b1)
+
 ## Support Languages
 - [x] C++
 - [ ] Python
@@ -32,6 +34,7 @@ pip install lucy01
     Specify home directory for `lucy`.
 
 - `DROPBOX_TOKEN`
+
 
     Dropbox developer access token with `sharing.read` permission. It can be generated at
     [DBX Platform for Developers](https://www.dropbox.com/developers). This is necessary to fetch
@@ -75,4 +78,4 @@ $LUCY_HOME
 
 - Lucy organizes your competitive programming workspace with a clear directory structure. Besides folders for specific contests and their solutions with `tests`, a key element is the `common` directory. This folder stores reusable code snippets `(*.cpp)`. These snippets can be easily inserted into your solution files using filename prefixes thanks to the `cp.code-snippets` file in the `.vscode` folder. This file, automatically generated with `lucy update-snippets`,  facilitates code completion within Visual Studio Code.
 
-  [Using Snippets](https://github.com/kid-116/CP/assets/75692643/3636b6f1-ad58-4bd7-8cb1-2c700f8a5b72)
+    [Using Snippets.webm](https://github.com/kid-116/Lucy/assets/75692643/4b747b59-9736-4185-a6ee-9aa1fc843e92)
