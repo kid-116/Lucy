@@ -39,7 +39,7 @@ classifiers = [
 
 [project.urls]
 # Homepage = "https://example.com"
-# Documentation = "https://readthedocs.org"
+Documentation = "https://lucy01.readthedocs.io/en/latest/"
 Repository = "https://github.com/kid-116/Lucy"
 Issues = "https://github.com/kid-116/Lucy/issues"
 # Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
