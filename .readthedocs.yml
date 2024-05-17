@@ -13,7 +13,6 @@ build:
     python: "3.10"
   jobs:
     post_install:
-      - pip freeze
       - lucy --help
       - cd lucy &&
         mdclick dumps --baseModule=lucy.main --baseCommand=lucy --docsPath=./docs/commands &&
