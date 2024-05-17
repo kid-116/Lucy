@@ -42,8 +42,8 @@ def lucy(_: Any) -> None:
               is_flag=True,
               help='Create a global VSCode snippet file.')
 def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
-    """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`. By
-default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
+    """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`.
+By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
     """
     entry_dir_ = os.path.abspath(entry_dir_)
