@@ -17,19 +17,36 @@ from lucy.tester import Tester
 @click.group()
 @click.version_option(importlib.metadata.version('lucy01'))
 @click.pass_context
-def cli(_: Any) -> None:
+def lucy(_: Any) -> None:
+    """"""  # pylint: disable=empty-docstring
     LocalFS.setup()
 
 
-@cli.command('update-snippets')
+@lucy.command('update-snippets')
 @click.option('-ed',
               '--entry-dir',
               'entry_dir_',
               default=Config.COMMONS_DIR,
-              type=click.Path(exists=True))
-@click.option('-o', '--out', 'out', default=Config.SNIPPETS_PATH, type=click.Path())
-@click.option('-g', '--global', 'global_', default=False, is_flag=True)
+              type=click.Path(exists=True),
+              help='Root directory for snippet files.')
+@click.option('-o',
+              '--out',
+              'out',
+              default=Config.SNIPPETS_PATH,
+              type=click.Path(),
+              help='Output filepath.')
+@click.option('-g',
+              '--global',
+              'global_',
+              default=False,
+              is_flag=True,
+              help='Create a global VSCode snippet file.')
 def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
+    """
+    Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`. By
+    default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
+    `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
+    """
     entry_dir_ = os.path.abspath(entry_dir_)
     out = os.path.abspath(out)
     snippets = us.run(entry_dir_, out)
@@ -41,12 +58,21 @@ def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
                    f'{os.getenv("HOME")}/.config/Code/User/snippets/{Config.SNIPPETS_FILE_NAME}')
 
 
-@cli.command('setup')
+@lucy.command('setup')
 @click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
 @click.argument('contest_id')
 @click.argument('task_id', required=False, default=None, type=str)
 @click.argument('test_id', required=False, default=None, type=str)
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
+    """Sets up directory structure for a contest.
+
+        lucy setup atcoder ABC353
+
+    It can also be used to fetch a hidden test-case revealed once the contest is completed.
+    `$DROPBOX_TOKEN` must be enabled to use this feature.
+
+        lucy setup atcoder ARC177 C in01.txt
+    """
     website = Website.from_string(site)
     if test_id is not None:
         assert task_id is not None
@@ -63,27 +89,58 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
         LocalFS.create_impl_file(website, contest_id, task.id_)
 
 
-@cli.command('test')
+@lucy.command('test')
 @click.argument('site', type=Config.CLI_WEBSITE_CHOICE, required=True)
 @click.argument('contest_id', type=str, required=True)
 @click.argument('task_id', type=str, required=True)
 @click.argument('test_id', default=None, type=int, required=False)
-@click.option('-c', '--continue', 'continue_', is_flag=True, default=False)
-@click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
+@click.option('-c',
+              '--continue',
+              'continue_',
+              is_flag=True,
+              default=False,
+              help='Do not stop on a `WA` verdict.')
+@click.option('-v',
+              '--verbose',
+              'verbose',
+              is_flag=True,
+              default=False,
+              help='Print debug information.')
 def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool,
          continue_: bool) -> None:
+    """
+    Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
+    run.
+
+        lucy test atcoder ABC353 A 1
+    """
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
 
 
-@cli.command('active-test')
+@lucy.command('active-test')
 @click.argument('test_id', default=None, type=int, required=False)
-@click.option('-v', '--verbose', 'verbose', is_flag=True, default=False)
-@click.option('-c', '--continue', 'continue_', is_flag=True, default=False)
+@click.option('-v',
+              '--verbose',
+              'verbose',
+              is_flag=True,
+              default=False,
+              help='Do not stop on a `WA` verdict.')
+@click.option('-c',
+              '--continue',
+              'continue_',
+              is_flag=True,
+              default=False,
+              help='Print debug information.')
 @click.pass_context
 def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
+    """
+    Run tests by determining the task using the current working directory.
+
+        AtCoder/ABC353/A$ lucy active-test
+    """
     site, contest_id, task_id = LocalFS.parse_active_path()
     if not site:
         click.secho('Could not determine `site`.', fg='red', bold=True, err=True)

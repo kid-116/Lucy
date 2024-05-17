@@ -1,0 +1,12 @@
+site_name: lucy01
+# site_url: 
+repo_url: https://github.com/kid-116/Lucy
+repo_name: Lucy
+site_author: kid-116
+
+theme:
+  name: readthedocs
+  locale: en
+  include_sidebar: true
+
+docs_dir: docs
