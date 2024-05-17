@@ -47,7 +47,7 @@ pip install lucy01
     ```
     lucy --help
     ```
-    Check out the [documentation]().
+    Check out the [documentation](https://lucy01.readthedocs.io/en/latest/).
 
 ## Directory Structure
 ```
