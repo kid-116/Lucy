@@ -13,16 +13,47 @@ dependencies = [
     "selenium",
 ]
 requires-python = ">=3.10"
+authors = [{ name = "Mehul Todi", email = "mehul116.dev@gmail.com" }]
+keywords = [
+    "cp",
+    "cli",
+    "companion",
+    "atcoder",
+    "codeforces",
+    "tester",
+    "snippets",
+    "lucy"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+
+    "Programming Language :: Python :: 3.10",
+
+    "Operating System :: POSIX :: Linux",
+
+    "Intended Audience :: Education",
+
+    "Topic :: Education",
+]
+# license = {text = "MIT License"}
+
+[project.urls]
+# Homepage = "https://example.com"
+# Documentation = "https://readthedocs.org"
+Repository = "https://github.com/kid-116/Lucy"
+Issues = "https://github.com/kid-116/Lucy/issues"
+# Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 lint = ["mypy", "pylint", "pylint[spelling]", "yapf"]
+docs = ["mkdocs", "md-click@git+https://github.com/kid-116/md-click.git@support-arguments"]
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-lucy = "lucy.main:cli"
+lucy = "lucy.main:lucy"
 
 [tool.mypy]
 non_interactive = true

@@ -5,3 +5,5 @@ dist/
 venv/
 
 __pycache__/
+
+docs/
