@@ -42,10 +42,9 @@ def lucy(_: Any) -> None:
               is_flag=True,
               help='Create a global VSCode snippet file.')
 def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
-    """
-    Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`. By
-    default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
-    `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
+    """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`. By
+default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
+`$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
     """
     entry_dir_ = os.path.abspath(entry_dir_)
     out = os.path.abspath(out)
@@ -66,12 +65,14 @@ def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
     """Sets up directory structure for a contest.
 
-        lucy setup atcoder ABC353
+Example:
 
-    It can also be used to fetch a hidden test-case revealed once the contest is completed.
-    `$DROPBOX_TOKEN` must be enabled to use this feature.
+    lucy setup atcoder ABC353
+    
+It can also be used to fetch a hidden test-case revealed once the contest is completed.
+`$DROPBOX_TOKEN` must be enabled to use this feature.
 
-        lucy setup atcoder ARC177 C in01.txt
+    lucy setup atcoder ARC177 C in01.txt
     """
     website = Website.from_string(site)
     if test_id is not None:
@@ -108,11 +109,10 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
               help='Print debug information.')
 def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool,
          continue_: bool) -> None:
-    """
-    Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
-    run.
+    """Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
+run.
 
-        lucy test atcoder ABC353 A 1
+    lucy test atcoder ABC353 A 1
     """
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
@@ -136,10 +136,9 @@ def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbo
               help='Print debug information.')
 @click.pass_context
 def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
-    """
-    Run tests by determining the task using the current working directory.
+    """Run tests by determining the task using the current working directory.
 
-        AtCoder/ABC353/A$ lucy active-test
+    AtCoder/ABC353/A$ lucy active-test
     """
     site, contest_id, task_id = LocalFS.parse_active_path()
     if not site:
