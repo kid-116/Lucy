@@ -14,6 +14,7 @@ build:
   jobs:
     post_install:
       - pip freeze
+      - lucy --help
       - cd lucy &&
         mdclick dumps --baseModule=lucy.main --baseCommand=lucy --docsPath=./docs/commands &&
         cp README.md ./docs
