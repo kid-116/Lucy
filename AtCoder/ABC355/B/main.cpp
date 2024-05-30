@@ -14,19 +14,19 @@ using namespace std;
 #define YES "Yes"
 #define NO "No"
 
-typedef long long lli;
+#define lli long long
 
-typedef vector<short> v16;
-typedef vector<v16> vv16;
-typedef vector<bool> vb;
-typedef vector<vb> vvb;
-typedef vector<int> v32;
-typedef vector<v32> vv32;
-typedef vector<lli> v64;
-typedef vector<v64> vv64;
-typedef vector<char> vc;
-typedef vector<vc> vvc;
-typedef vector<string> vs;
+#define v16 vector<short>
+#define vv16 vector<vs>
+#define vb vector<bool>
+#define vvb vector<vb>
+#define v32 vector<int>
+#define vv32 vector<vi>
+#define v64 vector<lli>
+#define vv64 vector<vl>
+#define vc vector<char>
+#define vvc vector<vc>
+#define vs vector<string>
 
 #define all(vec) vec.begin(), vec.end()
 
