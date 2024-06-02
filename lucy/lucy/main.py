@@ -52,8 +52,10 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
     for snippet in snippets:
         click.echo(snippet)
     if global_:
-        os.symlink(out,
-                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{config.snippets.file_name}')
+        if not config.snippets.global_link.exists():
+            os.symlink(out, config.snippets.global_link)
+        else:
+            click.secho('Warning: Global snippet file already exists.', fg='yellow', bold=True)
 
 
 @lucy.command('setup')
