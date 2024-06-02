@@ -43,6 +43,10 @@ class SnippetsConfig:
     dir_: Path
     file_name: str
 
+    @property
+    def global_link(self) -> Path:
+        return Path(f'{os.getenv("HOME")}/.config/Code/User/snippets/{self.file_name}')
+
     def __init__(self, home: Path) -> None:
         self.dir_ = home / '.vscode'
         self.file_name = 'cp.code-snippets'
