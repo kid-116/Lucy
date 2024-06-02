@@ -58,9 +58,9 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 
 @lucy.command('setup')
 @click.argument('site', type=click.Choice(Website.choices()))
-@click.argument('contest_id')
-@click.argument('task_id', required=False, default=None, type=str)
-@click.argument('test_id', required=False, default=None, type=str)
+@click.argument('contest_id', callback=utils.to_upper)
+@click.argument('task_id', required=False, default=None, type=str, callback=utils.to_upper)
+@click.argument('test_id', required=False, default=None, type=int)
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
     """Sets up directory structure for a contest.
 
@@ -83,10 +83,15 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
 
 @lucy.command('test')
-@click.argument('site', type=click.Choice(Website.choices()), required=True)
-@click.argument('contest_id', type=str, required=True)
-@click.argument('task_id', type=str, required=True)
-@click.argument('test_id', default=None, type=int, required=False)
+@click.argument('site', type=click.Choice(Website.choices()), required=False)
+@click.argument('contest_id', type=str, required=False, callback=utils.to_upper)
+@click.argument('task_id', type=str, required=False, callback=utils.to_upper)
+@click.option('-t',
+              '--test-id',
+              'test_id',
+              default=None,
+              type=int,
+              help='Select a specific `test_id`')
 @click.option('-c',
               '--continue',
               'continue_',
@@ -99,13 +104,25 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
               is_flag=True,
               default=False,
               help='Print debug information.')
-def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool,
-         continue_: bool) -> None:
+@click.option('-a',
+              '--active',
+              'active',
+              is_flag=True,
+              default=False,
+              help='Determine target from current directory.')
+def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
+         test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
     """Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
 run.
 
     lucy test AtCoder ABC353 A 1
     """
+    if active:
+        site, contest_id, task_id = LocalFS.parse_active_path()
+    if any(val is None for val in [site, contest_id, task_id]):
+        raise click.ClickException('Could not determine active task.')
+    assert site and contest_id and task_id
+
     website = Website.from_string(site)
     impl_hash = LocalFS.get_impl_hash(website, contest_id, task_id)
     impl_key = utils.hash_((website, contest_id, task_id))
@@ -116,43 +133,3 @@ run.
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
-
-
-@lucy.command('active-test')
-@click.argument('test_id', default=None, type=int, required=False)
-@click.option('-v',
-              '--verbose',
-              'verbose',
-              is_flag=True,
-              default=False,
-              help='Print debug information.')
-@click.option('-c',
-              '--continue',
-              'continue_',
-              is_flag=True,
-              default=False,
-              help='Do not stop on a `WA` verdict.')
-@click.pass_context
-def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
-    """Run tests by determining the task using the current working directory.
-
-    AtCoder/ABC353/A$ lucy active-test
-    """
-    site, contest_id, task_id = LocalFS.parse_active_path()
-    if not site:
-        click.secho('Could not determine `site`.', fg='red', bold=True, err=True)
-        return
-    if not contest_id:
-        click.secho('Could not determine `contest_id`.', fg='red', bold=True, err=True)
-        return
-    if not task_id:
-        click.secho('Could not determine `task_id`.', fg='red', bold=True, err=True)
-        return
-
-    ctx.invoke(test,
-               site=str(Website.from_string(site)),
-               contest_id=contest_id,
-               task_id=task_id,
-               test_id=test_id,
-               verbose=verbose,
-               continue_=continue_)
