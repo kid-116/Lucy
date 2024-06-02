@@ -102,8 +102,7 @@ class LocalFS:
 
         if not os.path.exists(config.commons.template_path):
             with open(config.commons.template_path, 'w+', encoding='utf-8') as template:
-                template.write(
-"""#include <iostream>
+                template.write("""#include <iostream>
 
 using namespace std;
 
@@ -151,7 +150,5 @@ int main() {
                 contest_id = parts[1]
             if len(parts) >= 3:
                 task_id = parts[2]
-            if site:
-                site = site
 
         return site, contest_id, task_id

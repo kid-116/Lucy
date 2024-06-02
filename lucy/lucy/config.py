@@ -83,9 +83,9 @@ class ConfigClass:
 
     def __init__(self) -> None:
         home = os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy')
-        if 'PYTEST_VERSION' in os.environ:
-            home = TestConfig.home
         self.home = Path(home)
+        if 'PYTEST_VERSION' in os.environ:
+            self.home = TestConfig.home
         del home
         self.host = {Website.ATCODER: 'https://atcoder.jp'}
         self.snippets = SnippetsConfig(self.home)
