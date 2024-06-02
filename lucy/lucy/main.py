@@ -66,11 +66,11 @@ def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
 
 Example:
 
-    lucy setup atcoder ABC353
+    lucy setup AtCoder ABC353
     
 It can also be used to fetch a hidden test-case revealed once the contest is completed.
 
-    lucy setup atcoder ARC177 C in01.txt
+    lucy setup AtCoder ARC177 C in01.txt
     """
     website = Website.from_string(site)
     if test_id is not None:
@@ -104,7 +104,7 @@ def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbo
     """Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
 run.
 
-    lucy test atcoder ABC353 A 1
+    lucy test AtCoder ABC353 A 1
     """
     website = Website.from_string(site)
     tester = Tester(website, contest_id, task_id, test_id)
