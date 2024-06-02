@@ -11,7 +11,7 @@ solutions.
 
 [Demo](https://github.com/kid-116/Lucy/assets/75692643/1b7195f7-fcd3-4e05-b23e-48061f6ef1b1)
 
-## Support Languages
+## Supported Languages
 - [x] C++
 - [ ] Python
 
