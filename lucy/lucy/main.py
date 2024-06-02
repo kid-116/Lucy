@@ -40,7 +40,8 @@ def lucy(_: Any) -> None:
               default=False,
               is_flag=True,
               help='Create a global VSCode snippet file.')
-def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
+@click.option('-f', '--force', 'force', default=False, is_flag=True, help='Force update.')
+def update_snippets(entry_dir_: str, out: str, global_: bool, force: bool) -> None:
     """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`.
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
@@ -52,7 +53,10 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
     for snippet in snippets:
         click.echo(snippet)
     if global_:
-        if not config.snippets.global_link.exists():
+        link_absent = not config.snippets.global_link.exists()
+        if link_absent or force:
+            if not link_absent:
+                os.remove(config.snippets.global_link)
             os.symlink(out, config.snippets.global_link)
         else:
             click.secho('Warning: Global snippet file already exists.', fg='yellow', bold=True)
