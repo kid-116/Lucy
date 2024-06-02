@@ -17,6 +17,7 @@ build:
       - cd lucy &&
         mdclick dumps --baseModule=lucy.main --baseCommand=lucy --docsPath=./docs/commands &&
         cp README.md ./docs
+        cp DEVELOPMENT.md ./docs
 
 formats: all
 

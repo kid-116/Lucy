@@ -30,5 +30,10 @@
         "span": "cpp",
         "regex": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "python.testing.pytestArgs": [
+        "lucy"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import os
+from pathlib import Path
 
-import click
 import dotenv
 
 dotenv.load_dotenv()
@@ -21,6 +21,10 @@ class Website(Enum):
             return 'AtCoder'
         raise NotImplementedError()
 
+    @staticmethod
+    def choices() -> list[str]:
+        return [str(website) for website in Website]
+
 
 class SampleType(Enum):
     IN = 1
@@ -31,31 +35,62 @@ class SampleType(Enum):
 
 
 @dataclass
-class Config:
-    WEBSITE_HOST = {Website.ATCODER: 'https://atcoder.jp'}
+class SnippetsConfig:
+    dir_: Path
+    file_name: str
 
-    LUCY_HOME = os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'
-    LUCY_HOME = os.path.abspath(LUCY_HOME)
+    def __init__(self, home: Path) -> None:
+        self.dir_ = home / '.vscode'
+        self.file_name = 'cp.code-snippets'
 
-    SNIPPETS_DIR = f'{LUCY_HOME}/.vscode'
-    SNIPPETS_FILE_NAME = 'cp.code-snippets'
-    SNIPPETS_PATH = f'{SNIPPETS_DIR}/{SNIPPETS_FILE_NAME}'
+    @property
+    def path(self) -> Path:
+        return self.dir_ / self.file_name
 
-    COMMONS_DIR = os.path.abspath(f'{LUCY_HOME}/common')
 
-    TEMPLATE_PATH = f'{COMMONS_DIR}/base.cpp'
+@dataclass
+class CommonsConfig:
+    dir_: Path
+    template_file_name: str = 'base.cpp'
 
-    CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
+    def __init__(self, home: Path) -> None:
+        self.dir_ = home / 'common'
 
-    IMPL_MAIN = 'main.cpp'
-    IMPL_BIN = 'main'
+    @property
+    def template_path(self) -> Path:
+        return self.dir_ / self.template_file_name
 
-    SAMPLES_DIR = 'tests'
 
-    # pylint: disable=line-too-long
-    DROPBOX_TOKEN = os.getenv(
-        'DROPBOX_TOKEN'
-    ) or 'sl.B1Rp-zCsGfT8Pd3K_LSV-CduAGyJrBbltWKlly2JvHDzRf3u9AG68md6obRbVyoygMgytF_2L5SYoLijtyQ99qsHH9d9r1SdomNlWZk7uyPTpN4TxhtvnRlbuEfXfpGPF285E61xlXNz'
+@dataclass
+class ImplConfig:
+    src_name: str = 'main.cpp'
+    bin_name: str = 'main'
 
-    ATCODER_TESTCASES_DROPBOX_LINK = 'https://www.dropbox.com/sh/nx3tnilzqz7df8a/AAAYlTq2tiEHl5hsESw6-yfLa?dl=0'
-    # pylint: enable=line-too-long
+
+@dataclass
+class TestConfig:
+    home: Path = Path('/tmp/lucy')
+
+
+@dataclass
+class ConfigClass:
+    home: Path
+    snippets: SnippetsConfig
+    commons: CommonsConfig
+    impl: ImplConfig
+    host: dict[Website, str]
+    samples_dir_name: str = 'tests'
+
+    def __init__(self) -> None:
+        home = os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy')
+        self.home = Path(home)
+        if 'PYTEST_VERSION' in os.environ:
+            self.home = TestConfig.home
+        del home
+        self.host = {Website.ATCODER: 'https://atcoder.jp'}
+        self.snippets = SnippetsConfig(self.home)
+        self.commons = CommonsConfig(self.home)
+        self.impl = ImplConfig()
+
+
+config = ConfigClass()

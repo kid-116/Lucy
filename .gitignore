@@ -11,5 +11,6 @@ test/**
 .lucy/
 
 tests/
+!lucy/tests
 
 .env
