@@ -169,13 +169,12 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
         self.user_cfg = UserConfig(self.storage_path)
 
         self.website = {Website.ATCODER: WebsiteConfig('https://atcoder.jp')}
-        
+
         self.snippets = SnippetsConfig(self.home)
         self.commons = CommonsConfig(self.home)
         self.recent_tests = RecentTestsConfig(self.storage_path)
 
         self.__load_user_cfg()
-
 
 
 config = ConfigClass()
