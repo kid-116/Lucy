@@ -69,7 +69,6 @@ Example:
     lucy setup atcoder ABC353
     
 It can also be used to fetch a hidden test-case revealed once the contest is completed.
-`$DROPBOX_TOKEN` must be enabled to use this feature.
 
     lucy setup atcoder ARC177 C in01.txt
     """

@@ -6,7 +6,6 @@ readme = "README.md"
 dependencies = [
     "bs4",
     "click",
-    "dropbox",
     "lxml",
     "python-dotenv",
     "requests",
