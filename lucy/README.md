@@ -1,3 +1,7 @@
+[![Lint](https://github.com/kid-116/Lucy/actions/workflows/pylint.yml/badge.svg)](https://github.com/kid-116/Lucy/actions/workflows/pylint.yml)
+[![Test](https://github.com/kid-116/Lucy/actions/workflows/pytest.yml/badge.svg)](https://github.com/kid-116/Lucy/actions/workflows/pytest.yml)
+[![Publish PyPI](https://github.com/kid-116/Lucy/actions/workflows/publish.yml/badge.svg)](https://github.com/kid-116/Lucy/actions/workflows/publish.yml)
+
 # Lucy
 
 Lucy, a CLI companion for competitive programming on AtCoder and Codeforces, frees you from tedious
