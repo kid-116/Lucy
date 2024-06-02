@@ -12,6 +12,6 @@ class ContestParser:
 
         match self.website:
             case Website.ATCODER:
-                self.parser = AtCoderParser(contest_id.lower(), task_id)
+                self.parser = AtCoderParser(contest_id, task_id)
             case _:
                 raise NotImplementedError()

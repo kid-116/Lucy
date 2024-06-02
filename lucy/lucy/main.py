@@ -5,8 +5,7 @@ from typing import Any, Optional
 import click
 
 from lucy import update_snippets as us
-from lucy.config import Config, SampleType, Website
-from lucy.dbx_client import DropboxClient
+from lucy.config import config, Website
 from lucy.filesystem import LocalFS
 from lucy.parser_.contest import ContestParser
 from lucy.tester import Tester
@@ -26,13 +25,13 @@ def lucy(_: Any) -> None:
 @click.option('-ed',
               '--entry-dir',
               'entry_dir_',
-              default=Config.COMMONS_DIR,
+              default=config.commons.dir_,
               type=click.Path(exists=True),
               help='Root directory for snippet files.')
 @click.option('-o',
               '--out',
               'out',
-              default=Config.SNIPPETS_PATH,
+              default=config.snippets.path,
               type=click.Path(),
               help='Output filepath.')
 @click.option('-g',
@@ -54,11 +53,11 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
         click.echo(snippet)
     if global_:
         os.symlink(out,
-                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{Config.SNIPPETS_FILE_NAME}')
+                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{config.snippets.file_name}')
 
 
 @lucy.command('setup')
-@click.argument('site', type=Config.CLI_WEBSITE_CHOICE)
+@click.argument('site', type=click.Choice(Website.choices()))
 @click.argument('contest_id')
 @click.argument('task_id', required=False, default=None, type=str)
 @click.argument('test_id', required=False, default=None, type=str)
@@ -77,13 +76,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
     website = Website.from_string(site)
     if test_id is not None:
         assert task_id is not None
-        if website != Website.ATCODER:
-            raise NotImplementedError()
-        in_path, out_path, idx = LocalFS.get_new_sample_paths(website, contest_id, task_id)
-        DropboxClient().download(f'/{contest_id}/{task_id}/{SampleType.IN}/{test_id}', in_path)
-        DropboxClient().download(f'/{contest_id}/{task_id}/{SampleType.OUT}/{test_id}', out_path)
-        click.secho(f'Stored sample {test_id} as Test#{idx:02d}.', fg='green', bold=True)
-        return
+        raise NotImplementedError()
     contest_ = ContestParser(website, contest_id, task_id)
     for task in contest_.parser.tasks:
         LocalFS.store_samples(website, contest_id, task)
@@ -91,7 +84,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
 
 @lucy.command('test')
-@click.argument('site', type=Config.CLI_WEBSITE_CHOICE, required=True)
+@click.argument('site', type=click.Choice(Website.choices()), required=True)
 @click.argument('contest_id', type=str, required=True)
 @click.argument('task_id', type=str, required=True)
 @click.argument('test_id', default=None, type=int, required=False)
@@ -127,13 +120,13 @@ run.
               'verbose',
               is_flag=True,
               default=False,
-              help='Do not stop on a `WA` verdict.')
+              help='Print debug information.')
 @click.option('-c',
               '--continue',
               'continue_',
               is_flag=True,
               default=False,
-              help='Print debug information.')
+              help='Do not stop on a `WA` verdict.')
 @click.pass_context
 def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
     """Run tests by determining the task using the current working directory.
@@ -152,7 +145,7 @@ def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool
         return
 
     ctx.invoke(test,
-               site=site,
+               site=str(Website.from_string(site)),
                contest_id=contest_id,
                task_id=task_id,
                test_id=test_id,

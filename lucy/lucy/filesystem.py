@@ -1,30 +1,31 @@
 import os
+from pathlib import Path
 import shutil
 from typing import Generator, Optional, Tuple
 
 import click
 
-from lucy.config import Config, SampleType, Website
+from lucy.config import config, SampleType, Website
 from lucy.parser_.parser_ import Task
 
 
 class LocalFS:
 
     @staticmethod
-    def get_contest_root_dir(website: Website, contest_id: str) -> str:
-        return f'{Config.LUCY_HOME}/{website}/{contest_id.upper()}'
+    def get_contest_root_dir(website: Website, contest_id: str) -> Path:
+        return config.home / str(website) / contest_id
 
     @staticmethod
     def get_impl_path(website: Website,
                       contest_id: str,
                       task_id: str,
                       dir_: bool = False,
-                      bin_: bool = False) -> str:
-        impl_path = f'{LocalFS.get_contest_root_dir(website, contest_id)}/{task_id.upper()}'
+                      bin_: bool = False) -> Path:
+        impl_path = LocalFS.get_contest_root_dir(website, contest_id) / task_id
         if bin_:
-            return f'{impl_path}/{Config.IMPL_BIN}'
+            return impl_path / config.impl.bin_name
         if not dir_:
-            impl_path = f'{impl_path}/{Config.IMPL_MAIN}'
+            impl_path = impl_path / config.impl.src_name
         return impl_path
 
     @staticmethod
@@ -32,13 +33,13 @@ class LocalFS:
                         contest_id: str,
                         task_id: str,
                         type_: Optional[SampleType] = None,
-                        idx: Optional[int] = None) -> str:
-        sample_path = LocalFS.get_impl_path(website, contest_id, task_id, dir_=True)
-        sample_path += f'/{Config.SAMPLES_DIR}'
+                        idx: Optional[int] = None) -> Path:
+        sample_path = LocalFS.get_impl_path(website, contest_id, task_id,
+                                            dir_=True) / config.samples_dir_name
         if type_:
-            sample_path += f'/{type_}'
+            sample_path = sample_path / str(type_)
             if idx is not None:
-                sample_path += f'/{idx:02d}.txt'
+                sample_path = sample_path / f'{idx:02d}.txt'
         return sample_path
 
     @staticmethod
@@ -55,7 +56,7 @@ class LocalFS:
 
     @staticmethod
     def get_new_sample_paths(website: Website, contest_id: str,
-                             task_id: str) -> Tuple[str, str, int]:
+                             task_id: str) -> Tuple[Path, Path, int]:
         idx = LocalFS.num_samples(website, contest_id, task_id)
         in_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.IN, idx)
         out_path = LocalFS.get_sample_path(website, contest_id, task_id, SampleType.OUT, idx)
@@ -87,31 +88,39 @@ class LocalFS:
 
     @staticmethod
     def setup() -> None:
-        if not os.path.exists(Config.LUCY_HOME):
-            click.echo(f'Creating LUCY_HOME ({Config.LUCY_HOME}).')
-            os.makedirs(Config.LUCY_HOME, exist_ok=True)
+        if not config.home.exists():
+            click.echo(f'Creating LUCY_HOME ({config.home}).')
+            os.makedirs(config.home, exist_ok=True)
 
-        if not os.path.exists(Config.SNIPPETS_DIR):
-            click.echo(f'Creating SNIPPETS_DIR ({Config.SNIPPETS_DIR}).')
-            os.makedirs(Config.SNIPPETS_DIR, exist_ok=True)
+        if not os.path.exists(config.snippets.dir_):
+            click.echo(f'Creating directory ({config.snippets.dir_}) for VSCode snippets file.')
+            os.makedirs(config.snippets.dir_, exist_ok=True)
 
-        if not os.path.exists(Config.COMMONS_DIR):
-            click.echo(f'Creating COMMONS_DIR ({Config.COMMONS_DIR}).')
-            os.makedirs(Config.COMMONS_DIR, exist_ok=True)
+        if not config.commons.dir_.exists():
+            click.echo(f'Creating directory for snippets ({config.commons.dir_}).')
+            os.makedirs(config.commons.dir_, exist_ok=True)
 
-        if not os.path.exists(Config.TEMPLATE_PATH):
-            with open(Config.TEMPLATE_PATH, 'w+', encoding='utf-8'):
-                pass
+        if not os.path.exists(config.commons.template_path):
+            with open(config.commons.template_path, 'w+', encoding='utf-8') as template:
+                template.write(
+"""#include <iostream>
+
+using namespace std;
+
+int main() {
+    return 0;
+}
+""")
 
     @staticmethod
-    def create_impl_file(website: Website, contest_id: str, task_id: str) -> str:
+    def create_impl_file(website: Website, contest_id: str, task_id: str) -> Path:
         impl_path = LocalFS.get_impl_path(website, contest_id, task_id)
         if not os.path.exists(impl_path):
-            shutil.copy(Config.TEMPLATE_PATH, impl_path)
+            shutil.copy(config.commons.template_path, impl_path)
         return impl_path
 
     @staticmethod
-    def read(path: str) -> str:
+    def read(path: Path) -> str:
         with open(path) as f:  # pylint: disable=unspecified-encoding
             return f.read()
 
@@ -130,7 +139,7 @@ class LocalFS:
         task_id = None
 
         active_path = os.path.realpath(os.getcwd())
-        home_dir = os.path.realpath(Config.LUCY_HOME)
+        home_dir = os.path.realpath(config.home)
         if active_path.startswith(home_dir):
             active_path = active_path[len(home_dir):]
             active_path = active_path.lstrip('/')
@@ -143,6 +152,6 @@ class LocalFS:
             if len(parts) >= 3:
                 task_id = parts[2]
             if site:
-                site = site.lower()
+                site = site
 
         return site, contest_id, task_id

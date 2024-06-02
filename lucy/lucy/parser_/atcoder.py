@@ -3,7 +3,7 @@ from typing import Any, Generator, Optional, Tuple
 import click
 
 from lucy import utils
-from lucy.config import Config, Website
+from lucy.config import config, Website
 from lucy.scraper import Scraper
 
 from lucy.parser_.parser_ import Parser, Task
@@ -43,7 +43,7 @@ class AtCoderParser(Parser):
 
         scraper = Scraper()
 
-        self.tasks_page_url = f'{Config.WEBSITE_HOST[Website.ATCODER]}/contests/{contest_id}/tasks'
+        self.tasks_page_url = f'{config.host[Website.ATCODER]}/contests/{contest_id}/tasks'
         tasks_page = scraper.get(self.tasks_page_url)
 
         tasks = self.__parse_tasks(tasks_page)
