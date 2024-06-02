@@ -45,7 +45,7 @@ class Config:
 
     TEMPLATE_PATH = f'{COMMONS_DIR}/base.cpp'
 
-    CLI_WEBSITE_CHOICE = click.Choice(['atcoder'])
+    CLI_WEBSITE_CHOICE = click.Choice([str(website) for website in Website])
 
     IMPL_MAIN = 'main.cpp'
     IMPL_BIN = 'main'

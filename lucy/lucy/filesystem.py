@@ -11,12 +11,16 @@ from lucy.parser_.parser_ import Task
 class LocalFS:
 
     @staticmethod
+    def get_contest_root_dir(website: Website, contest_id: str) -> str:
+        return f'{Config.LUCY_HOME}/{website}/{contest_id.upper()}'
+
+    @staticmethod
     def get_impl_path(website: Website,
                       contest_id: str,
                       task_id: str,
                       dir_: bool = False,
                       bin_: bool = False) -> str:
-        impl_path = f'{Config.LUCY_HOME}/{website}/{contest_id.upper()}/{task_id.upper()}'
+        impl_path = f'{LocalFS.get_contest_root_dir(website, contest_id)}/{task_id.upper()}'
         if bin_:
             return f'{impl_path}/{Config.IMPL_BIN}'
         if not dir_:

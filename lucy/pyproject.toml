@@ -47,6 +47,7 @@ Issues = "https://github.com/kid-116/Lucy/issues"
 [project.optional-dependencies]
 lint = ["mypy", "pylint", "pylint[spelling]", "yapf"]
 docs = ["mkdocs", "md-click@git+https://github.com/kid-116/md-click.git@support-arguments"]
+test = ["pytest", "pytest-datadir"]
 
 [build-system]
 requires = ["setuptools", "wheel"]
