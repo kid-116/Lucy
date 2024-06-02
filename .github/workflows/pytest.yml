@@ -1,4 +1,4 @@
-name: Lint
+name: Test
 
 on:
   push:
@@ -19,7 +19,7 @@ defaults:
     working-directory: ./lucy
 
 jobs:
-  py-lint:
+  pytest:
     runs-on: ubuntu-latest
     strategy:
       matrix:
