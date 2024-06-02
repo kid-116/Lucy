@@ -1,4 +1,4 @@
-# Lucy - Development
+# Development
 
 ## Getting Started
 
