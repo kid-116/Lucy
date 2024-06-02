@@ -1,13 +1,14 @@
 import importlib.metadata
 import os
+import time
 from typing import Any, Optional
 
 import click
 
 from lucy import update_snippets as us, utils
 from lucy.config import config, Website
+from lucy import contest_setup
 from lucy.filesystem import LocalFS
-from lucy.parser_.contest import ContestParser
 from lucy.tester import Tester
 
 # pylint: disable=too-many-arguments
@@ -40,7 +41,8 @@ def lucy(_: Any) -> None:
               default=False,
               is_flag=True,
               help='Create a global VSCode snippet file.')
-def update_snippets(entry_dir_: str, out: str, global_: bool) -> None:
+@click.option('-f', '--force', 'force', default=False, is_flag=True, help='Force update.')
+def update_snippets(entry_dir_: str, out: str, global_: bool, force: bool) -> None:
     """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`.
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
@@ -52,8 +54,13 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
     for snippet in snippets:
         click.echo(snippet)
     if global_:
-        os.symlink(out,
-                   f'{os.getenv("HOME")}/.config/Code/User/snippets/{config.snippets.file_name}')
+        link_absent = not config.snippets.global_link.exists()
+        if link_absent or force:
+            if not link_absent:
+                os.remove(config.snippets.global_link)
+            os.symlink(out, config.snippets.global_link)
+        else:
+            click.secho('Warning: Global snippet file already exists.', fg='yellow', bold=True)
 
 
 @lucy.command('setup')
@@ -61,7 +68,7 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @click.argument('contest_id', callback=utils.to_upper)
 @click.argument('task_id', required=False, default=None, type=str, callback=utils.to_upper)
 @click.argument('test_id', required=False, default=None, type=int)
-def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
+def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int]) -> None:
     """Sets up directory structure for a contest.
 
 Example:
@@ -72,14 +79,11 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
     lucy setup AtCoder ARC177 C in01.txt
     """
+    start = time.time()
     website = Website.from_string(site)
-    if test_id is not None:
-        assert task_id is not None
-        raise NotImplementedError()
-    contest_ = ContestParser(website, contest_id, task_id)
-    for task in contest_.parser.tasks:
-        LocalFS.store_samples(website, contest_id, task)
-        LocalFS.create_impl_file(website, contest_id, task.id_)
+    contest_setup.contest_setup(website, contest_id, task_id, test_id)
+    end = time.time()
+    click.secho(f'Finished in {end - start} sec(s).')
 
 
 @lucy.command('test')
