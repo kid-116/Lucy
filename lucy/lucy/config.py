@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from enum import Enum
 import os
 from pathlib import Path
+import shelve
+from shelve import Shelf
 
 import dotenv
 
@@ -73,13 +75,36 @@ class TestConfig:
 
 
 @dataclass
-class ConfigClass:
+class RecentTestsConfig:
+    dir_: Path
+    file_name: str = 'recent_tests'
+    warning_msg: str = 'Warning: Unchanged solution!'
+
+    @property
+    def path(self) -> Path:
+        return self.dir_ / self.file_name
+
+    def get_cache(self) -> Shelf[str]:
+        return shelve.open(str(self.path))
+
+    def __init__(self, storage_path: Path) -> None:
+        self.dir_ = storage_path
+
+
+@dataclass
+class ConfigClass:  # pylint: disable=too-many-instance-attributes
     home: Path
     snippets: SnippetsConfig
     commons: CommonsConfig
-    impl: ImplConfig
     host: dict[Website, str]
+    recent_tests: RecentTestsConfig
+    impl: ImplConfig = ImplConfig()
     samples_dir_name: str = 'tests'
+    storage_dir_name: str = '.storage'
+
+    @property
+    def storage_path(self) -> Path:
+        return self.home / self.storage_dir_name
 
     def __init__(self) -> None:
         home = os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy')
@@ -90,7 +115,7 @@ class ConfigClass:
         self.host = {Website.ATCODER: 'https://atcoder.jp'}
         self.snippets = SnippetsConfig(self.home)
         self.commons = CommonsConfig(self.home)
-        self.impl = ImplConfig()
+        self.recent_tests = RecentTestsConfig(self.storage_path)
 
 
 config = ConfigClass()

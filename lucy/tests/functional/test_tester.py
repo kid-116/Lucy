@@ -7,6 +7,7 @@ import pytest
 import utils
 from utils import Contest
 
+from lucy.config import config
 from lucy.filesystem import LocalFS
 from lucy.main import test
 
@@ -43,3 +44,17 @@ def test_correct(runner: CliRunner, contest: Contest, datadir: Path, task_id: st
     result = runner.invoke(test, [str(contest.website), contest.contest_id, task_id])
     assert result.exit_code == 0
     assert result.output.count('.AC') == contest.tasks[ord(task_id) - ord('A')].num_samples
+
+
+def test_unchanged_soln_warning(runner: CliRunner,
+                                contest: Contest = utils.AtCoder.ABC100,
+                                task_id: str = 'A') -> None:
+    config.recent_tests.get_cache().clear()
+
+    result = runner.invoke(test, [str(contest.website), contest.contest_id, task_id])
+    assert result.exit_code == 0
+    assert config.recent_tests.warning_msg not in result.output
+
+    result = runner.invoke(test, [str(contest.website), contest.contest_id, task_id])
+    assert result.exit_code == 0
+    assert config.recent_tests.warning_msg in result.output
