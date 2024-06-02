@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - lucy/**
+      - lucy/pyproject.toml
   workflow_dispatch:
 
 jobs:
