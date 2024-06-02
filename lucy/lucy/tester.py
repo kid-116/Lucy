@@ -45,10 +45,11 @@ class Tester:
     def run(self, verbose: bool = False, continue_: bool = False) -> None:
         self.__compile()
 
+        total_n_tests = LocalFS.num_samples(self.website, self.contest_id, self.task_id)
         for i, (in_txt, truth_txt) in zip(
                 self.test_ids,
                 LocalFS.tests(self.website, self.contest_id, self.task_id, self.test_ids)):
-            click.echo(f'Test#{i:02d}', nl=False)
+            click.echo(f'Test#{i:02d}/{total_n_tests - 1:02d}', nl=False)
             click.echo(f'{"." * 50}', nl=False)
             passes, out_txt = self.__exec(in_txt, truth_txt)
             if passes:
