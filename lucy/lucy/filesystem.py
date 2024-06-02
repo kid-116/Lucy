@@ -1,9 +1,8 @@
+import hashlib
 import os
 from pathlib import Path
 import shutil
 from typing import Generator, Optional, Tuple
-
-import click
 
 from lucy.config import config, SampleType, Website
 from lucy.parser_.parser_ import Task
@@ -88,17 +87,16 @@ class LocalFS:
 
     @staticmethod
     def setup() -> None:
-        if not config.home.exists():
-            click.echo(f'Creating LUCY_HOME ({config.home}).')
-            os.makedirs(config.home, exist_ok=True)
+        dir_checks: list[Path] = [
+            config.home,
+            config.snippets.dir_,
+            config.commons.dir_,
+            config.storage_path,
+        ]
 
-        if not os.path.exists(config.snippets.dir_):
-            click.echo(f'Creating directory ({config.snippets.dir_}) for VSCode snippets file.')
-            os.makedirs(config.snippets.dir_, exist_ok=True)
-
-        if not config.commons.dir_.exists():
-            click.echo(f'Creating directory for snippets ({config.commons.dir_}).')
-            os.makedirs(config.commons.dir_, exist_ok=True)
+        for dir_ in dir_checks:
+            if not dir_.exists():
+                os.makedirs(dir_)
 
         if not os.path.exists(config.commons.template_path):
             with open(config.commons.template_path, 'w+', encoding='utf-8') as template:
@@ -152,3 +150,8 @@ int main() {
                 task_id = parts[2]
 
         return site, contest_id, task_id
+
+    @staticmethod
+    def get_impl_hash(website: Website, contest_id: str, task_id: str) -> str:
+        content = LocalFS.read(LocalFS.get_impl_path(website, contest_id, task_id))
+        return hashlib.md5(content.encode()).hexdigest()

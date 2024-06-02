@@ -1,8 +1,12 @@
 from __future__ import annotations
+from configparser import ConfigParser
 from dataclasses import dataclass
 from enum import Enum
 import os
 from pathlib import Path
+import shelve
+from shelve import Shelf
+from typing import Optional
 
 import dotenv
 
@@ -73,24 +77,104 @@ class TestConfig:
 
 
 @dataclass
-class ConfigClass:
+class RecentTestsConfig:
+    dir_: Path
+    file_name: str = 'recent_tests'
+    warning_msg: str = 'Warning: Unchanged solution!'
+
+    @property
+    def path(self) -> Path:
+        return self.dir_ / self.file_name
+
+    def get_cache(self) -> Shelf[str]:
+        return shelve.open(str(self.path))
+
+    def __init__(self, storage_path: Path) -> None:
+        self.dir_ = storage_path
+
+
+@dataclass
+class WebsiteConfig:
+    host: str
+    user_id: Optional[str] = None
+    passwd: Optional[str] = None
+
+
+@dataclass
+class UserConfig:
+    configurables: dict[str, str]
+    dir_: Path
+    cfg_file_name: str = 'overrides.cfg'
+    cfg_default_section: str = 'DEFAULT'
+
+    @property
+    def path(self) -> Path:
+        return self.dir_ / self.cfg_file_name
+
+    def __init__(self, storage_path: Path) -> None:
+        self.dir_ = storage_path
+        self.cfg = ConfigParser()
+        self.cfg.read(self.path)
+        self.cfg_default = self.cfg[self.cfg_default_section]
+        self.configurables = {
+            'AtCoder.UserId': 'website[Website.ATCODER].user_id',
+            'AtCoder.Password': 'website[Website.ATCODER].passwd',
+        }
+
+    def gets(self) -> dict[str, Optional[str]]:
+        return {key: self.get(key) for key in self.configurables}
+
+    def save(self) -> None:
+        with open(self.path, 'w') as cfg_file:  # pylint: disable=unspecified-encoding
+            self.cfg.write(cfg_file)
+
+    def get(self, key: str) -> Optional[str]:
+        return self.cfg_default.get(key)
+
+    def set(self, key: str, val: str) -> None:
+        self.cfg_default[key] = val
+        self.save()
+
+    def unset(self, key: str) -> None:
+        self.cfg_default.pop(key, None)
+        self.save()
+
+
+@dataclass
+class ConfigClass:  # pylint: disable=too-many-instance-attributes
     home: Path
     snippets: SnippetsConfig
     commons: CommonsConfig
-    impl: ImplConfig
-    host: dict[Website, str]
+    website: dict[Website, WebsiteConfig]
+    recent_tests: RecentTestsConfig
+    user_cfg: UserConfig
+    impl: ImplConfig = ImplConfig()
     samples_dir_name: str = 'tests'
+    storage_dir_name: str = '.storage'
+
+    @property
+    def storage_path(self) -> Path:
+        return self.home / self.storage_dir_name
+
+    def __load_user_cfg(self) -> None:
+        for key, val in self.user_cfg.gets().items():
+            if val:
+                exec(f"self.{self.user_cfg.configurables[key]} = '{val}'")  # pylint: disable=exec-used
 
     def __init__(self) -> None:
-        home = os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy')
-        self.home = Path(home)
+        self.home = Path(os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'))
         if 'PYTEST_VERSION' in os.environ:
             self.home = TestConfig.home
-        del home
-        self.host = {Website.ATCODER: 'https://atcoder.jp'}
+
+        self.user_cfg = UserConfig(self.storage_path)
+
+        self.website = {Website.ATCODER: WebsiteConfig('https://atcoder.jp')}
+
         self.snippets = SnippetsConfig(self.home)
         self.commons = CommonsConfig(self.home)
-        self.impl = ImplConfig()
+        self.recent_tests = RecentTestsConfig(self.storage_path)
+
+        self.__load_user_cfg()
 
 
 config = ConfigClass()

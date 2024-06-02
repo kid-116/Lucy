@@ -9,6 +9,7 @@ test/**
 *.code-snippets
 
 .lucy/
+.storage/
 
 tests/
 !lucy/tests

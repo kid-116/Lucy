@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 import click
 
-from lucy import update_snippets as us
+from lucy import update_snippets as us, utils
 from lucy.config import config, Website
 from lucy.filesystem import LocalFS
 from lucy.parser_.contest import ContestParser
@@ -58,19 +58,19 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 
 @lucy.command('setup')
 @click.argument('site', type=click.Choice(Website.choices()))
-@click.argument('contest_id')
-@click.argument('task_id', required=False, default=None, type=str)
-@click.argument('test_id', required=False, default=None, type=str)
+@click.argument('contest_id', callback=utils.to_upper)
+@click.argument('task_id', required=False, default=None, type=str, callback=utils.to_upper)
+@click.argument('test_id', required=False, default=None, type=int)
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str]) -> None:
     """Sets up directory structure for a contest.
 
 Example:
 
-    lucy setup atcoder ABC353
+    lucy setup AtCoder ABC353
     
 It can also be used to fetch a hidden test-case revealed once the contest is completed.
 
-    lucy setup atcoder ARC177 C in01.txt
+    lucy setup AtCoder ARC177 C in01.txt
     """
     website = Website.from_string(site)
     if test_id is not None:
@@ -83,10 +83,15 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
 
 @lucy.command('test')
-@click.argument('site', type=click.Choice(Website.choices()), required=True)
-@click.argument('contest_id', type=str, required=True)
-@click.argument('task_id', type=str, required=True)
-@click.argument('test_id', default=None, type=int, required=False)
+@click.argument('site', type=click.Choice(Website.choices()), required=False)
+@click.argument('contest_id', type=str, required=False, callback=utils.to_upper)
+@click.argument('task_id', type=str, required=False, callback=utils.to_upper)
+@click.option('-t',
+              '--test-id',
+              'test_id',
+              default=None,
+              type=int,
+              help='Select a specific `test_id`')
 @click.option('-c',
               '--continue',
               'continue_',
@@ -99,54 +104,73 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
               is_flag=True,
               default=False,
               help='Print debug information.')
-def test(site: str, contest_id: str, task_id: str, test_id: Optional[int], verbose: bool,
-         continue_: bool) -> None:
-    """Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
+@click.option('-a',
+              '--active',
+              'active',
+              is_flag=True,
+              default=False,
+              help='Determine target from current directory.')
+def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
+         test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
+    """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
 run.
 
-    lucy test atcoder ABC353 A 1
+    lucy test AtCoder ABC353 A 1
     """
+    if active:
+        site, contest_id, task_id = LocalFS.parse_active_path()
+    if any(val is None for val in [site, contest_id, task_id]):
+        raise click.ClickException('Could not determine active task.')
+    assert site and contest_id and task_id
+
     website = Website.from_string(site)
+    impl_hash = LocalFS.get_impl_hash(website, contest_id, task_id)
+    impl_key = utils.hash_((website, contest_id, task_id))
+    # print(impl_hash)
+    if config.recent_tests.get_cache().get(impl_key) == impl_hash:
+        click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
+    config.recent_tests.get_cache()[impl_key] = impl_hash
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
 
 
-@lucy.command('active-test')
-@click.argument('test_id', default=None, type=int, required=False)
-@click.option('-v',
-              '--verbose',
-              'verbose',
-              is_flag=True,
-              default=False,
-              help='Print debug information.')
-@click.option('-c',
-              '--continue',
-              'continue_',
-              is_flag=True,
-              default=False,
-              help='Do not stop on a `WA` verdict.')
-@click.pass_context
-def active_test(ctx: Any, test_id: Optional[int], verbose: bool, continue_: bool) -> None:
-    """Run tests by determining the task using the current working directory.
+@lucy.group('config')
+def config_() -> None:
+    """Configuration commands."""
 
-    AtCoder/ABC353/A$ lucy active-test
-    """
-    site, contest_id, task_id = LocalFS.parse_active_path()
-    if not site:
-        click.secho('Could not determine `site`.', fg='red', bold=True, err=True)
-        return
-    if not contest_id:
-        click.secho('Could not determine `contest_id`.', fg='red', bold=True, err=True)
-        return
-    if not task_id:
-        click.secho('Could not determine `task_id`.', fg='red', bold=True, err=True)
-        return
 
-    ctx.invoke(test,
-               site=str(Website.from_string(site)),
-               contest_id=contest_id,
-               task_id=task_id,
-               test_id=test_id,
-               verbose=verbose,
-               continue_=continue_)
+@config_.command('get')
+@click.argument('key',
+                type=click.Choice(list(config.user_cfg.configurables.keys())),
+                required=False)
+def config_get(key: Optional[str]) -> None:
+    """Gets the current configurations. KEY may be used to fetch a specific configuration."""
+    for k, val in config.user_cfg.gets().items():
+        if key is None or key == k:
+            click.echo(f"{k}: {'***' if 'pass' in k.lower() else val}")
+
+
+@config_.command('setup')
+def config_setup() -> None:
+    """Sets up the configuration."""
+    for key in config.user_cfg.configurables:
+        click.echo(f'{key}: ', nl=False)
+        val = input()
+        if val:
+            config.user_cfg.set(key, val)
+
+
+@config_.command('set')
+@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
+@click.argument('value', type=str, required=True)
+def config_set(key: str, value: str) -> None:
+    """Sets value for KEY."""
+    config.user_cfg.set(key, value)
+
+
+@config_.command('unset')
+@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
+def config_unset(key: str) -> None:
+    """Removes KEY configuration value."""
+    config.user_cfg.unset(key)
