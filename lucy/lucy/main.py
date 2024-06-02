@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 import click
 
-from lucy import update_snippets as us
+from lucy import update_snippets as us, utils
 from lucy.config import config, Website
 from lucy.filesystem import LocalFS
 from lucy.parser_.contest import ContestParser
@@ -107,6 +107,12 @@ run.
     lucy test AtCoder ABC353 A 1
     """
     website = Website.from_string(site)
+    impl_hash = LocalFS.get_impl_hash(website, contest_id, task_id)
+    impl_key = utils.hash_((website, contest_id, task_id))
+    # print(impl_hash)
+    if config.recent_tests.get_cache().get(impl_key) == impl_hash:
+        click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
+    config.recent_tests.get_cache()[impl_key] = impl_hash
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
