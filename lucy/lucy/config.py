@@ -163,17 +163,19 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self) -> None:
         self.home = Path(os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'))
+        if 'PYTEST_VERSION' in os.environ:
+            self.home = TestConfig.home
+
         self.user_cfg = UserConfig(self.storage_path)
 
         self.website = {Website.ATCODER: WebsiteConfig('https://atcoder.jp')}
+        
         self.snippets = SnippetsConfig(self.home)
         self.commons = CommonsConfig(self.home)
         self.recent_tests = RecentTestsConfig(self.storage_path)
 
         self.__load_user_cfg()
 
-        if 'PYTEST_VERSION' in os.environ:
-            self.home = TestConfig.home
 
 
 config = ConfigClass()
