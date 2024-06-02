@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import shutil
 
@@ -58,3 +59,17 @@ def test_unchanged_soln_warning(runner: CliRunner,
     result = runner.invoke(test, [str(contest.website), contest.contest_id, task_id])
     assert result.exit_code == 0
     assert config.recent_tests.warning_msg in result.output
+
+
+def test_active_flag(runner: CliRunner,
+                     contest: Contest = utils.AtCoder.ABC100,
+                     task_id: str = 'A') -> None:
+    impl_path = LocalFS.get_impl_path(contest.website, contest.contest_id, task_id, dir_=True)
+
+    os.chdir(impl_path)
+    result = runner.invoke(test, ['-a'])
+    assert result.exit_code == 0
+
+    os.chdir(impl_path.parent)
+    result = runner.invoke(test, ['-a'])
+    assert result.exit_code != 0

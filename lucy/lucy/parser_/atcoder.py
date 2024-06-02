@@ -43,7 +43,7 @@ class AtCoderParser(Parser):
 
         scraper = Scraper()
 
-        self.tasks_page_url = f'{config.host[Website.ATCODER]}/contests/{contest_id}/tasks'
+        self.tasks_page_url = f'{config.website[Website.ATCODER].host}/contests/{contest_id}/tasks'
         tasks_page = scraper.get(self.tasks_page_url)
 
         tasks = self.__parse_tasks(tasks_page)
