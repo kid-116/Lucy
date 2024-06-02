@@ -112,7 +112,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
               help='Determine target from current directory.')
 def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
          test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
-    """Run tests for a TASK_ID in a CONTEST_ID for a SITE. If TEST_ID is not provided, all tests are
+    """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
 run.
 
     lucy test AtCoder ABC353 A 1
@@ -133,3 +133,44 @@ run.
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
+
+
+@lucy.group('config')
+def config_() -> None:
+    """Configuration commands."""
+
+
+@config_.command('get')
+@click.argument('key',
+                type=click.Choice(list(config.user_cfg.configurables.keys())),
+                required=False)
+def config_get(key: Optional[str]) -> None:
+    """Gets the current configurations. KEY may be used to fetch a specific configuration."""
+    for k, val in config.user_cfg.gets().items():
+        if key is None or key == k:
+            click.echo(f"{k}: {'***' if 'pass' in k.lower() else val}")
+
+
+@config_.command('setup')
+def config_setup() -> None:
+    """Sets up the configuration."""
+    for key in config.user_cfg.configurables:
+        click.echo(f'{key}: ', nl=False)
+        val = input()
+        if val:
+            config.user_cfg.set(key, val)
+
+
+@config_.command('set')
+@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
+@click.argument('value', type=str, required=True)
+def config_set(key: str, value: str) -> None:
+    """Sets value for KEY."""
+    config.user_cfg.set(key, value)
+
+
+@config_.command('unset')
+@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
+def config_unset(key: str) -> None:
+    """Removes KEY configuration value."""
+    config.user_cfg.unset(key)
