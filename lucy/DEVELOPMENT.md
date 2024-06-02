@@ -15,3 +15,21 @@
     ```bash
     pytest
     ```
+
+
+## Lint
+1. `cd` into `lucy`.
+    - `yapf`
+        ```bash
+        yapf -i -r .
+        ```
+
+    - `mypy`
+        ```bash
+        mypy .
+        ```
+    
+    - `pylint`
+        ```bash
+        pylint --recursive=y .
+        ```
