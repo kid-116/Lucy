@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - lucy/**
-      - .github/workflows/pylint.yml
+      - .github/workflows/pytest.yml
   pull_request:
     branches:
       - main
     paths:
       - lucy/**
-      - .github/workflows/pylint.yml
+      - .github/workflows/pytest.yml
 
 defaults:
   run:
