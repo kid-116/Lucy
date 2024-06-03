@@ -8,7 +8,7 @@ from lucy.parser_.contest import ContestParser
 
 @pytest.mark.parametrize('contest', [(utils.AtCoder.ABC100)])
 def test_parser(contest: Contest) -> None:
-    fetched_contest = ContestParser(contest.website, contest.contest_id, n_threads=4)
+    fetched_contest = ContestParser(contest.website, contest.contest_id)
     fetched_tasks = sorted(fetched_contest.parser.tasks, key=lambda x: x.id_)
     assert len(fetched_contest.parser.tasks) == len(contest.tasks)
 
