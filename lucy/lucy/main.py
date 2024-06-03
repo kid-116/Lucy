@@ -71,7 +71,7 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @click.option('-t',
               '--n-threads',
               'n_threads',
-              default=4,
+              default=config.n_threads,
               type=int,
               help='Number of execution threads.')
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],

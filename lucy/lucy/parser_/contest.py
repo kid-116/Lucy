@@ -1,6 +1,6 @@
 from typing import Optional
 
-from lucy.config import Website
+from lucy.config import config, Website
 
 from lucy.parser_.atcoder import AtCoderParser
 
@@ -11,7 +11,7 @@ class ContestParser:
                  website: Website,
                  contest_id: str,
                  task_id: Optional[str] = None,
-                 n_threads: int = 1) -> None:
+                 n_threads: int = config.n_threads) -> None:
         self.website = website
 
         match self.website:

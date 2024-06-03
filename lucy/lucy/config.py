@@ -123,6 +123,7 @@ class UserConfig:
         self.configurables = {
             'AtCoder.UserId': 'website[Website.ATCODER].user_id',
             'AtCoder.Password': 'website[Website.ATCODER].passwd',
+            'NThreads': 'n_threads',
         }
 
     def gets(self) -> dict[str, Optional[str]]:
@@ -155,6 +156,7 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
     impl: ImplConfig = ImplConfig()
     samples_dir_name: str = 'tests'
     storage_dir_name: str = '.storage'
+    n_threads: int = 4
 
     @property
     def storage_path(self) -> Path:
@@ -163,7 +165,9 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
     def __load_user_cfg(self) -> None:
         for key, val in self.user_cfg.gets().items():
             if val:
-                exec(f"self.{self.user_cfg.configurables[key]} = '{val}'")  # pylint: disable=exec-used
+                dest = f'self.{self.user_cfg.configurables[key]}'
+                val = type(eval(dest))(val)
+                exec(f"{dest} = '{val}'")  # pylint: disable=exec-used
 
     def __init__(self) -> None:
         self.home = Path(os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'))

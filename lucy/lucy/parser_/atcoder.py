@@ -28,7 +28,7 @@ class AtCoderParser(Parser):
 
         task_path = f'{self.contest_id}_{task_id.lower()}'
         task_page = Scraper().get(f'{self.tasks_page_url}/{task_path}')
-        samples = [sample for sample in AtCoderParser.__parse_samples(task_page)]
+        samples = list(AtCoderParser.__parse_samples(task_page))
         click.secho(f'Found {len(samples)} samples for task {task_id}.', fg='green', bold=True)
         task = Task(task_id, task_name, samples)
         return task
