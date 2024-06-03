@@ -20,8 +20,6 @@ defaults:
 
 jobs:
   pytest:
-    environment:
-      name: test
     env:
       ATCODER_USER_ID: ${{ secrets.ATCODER_USER_ID }}
       ATCODER_PASSWORD: ${{ secrets.ATCODER_PASSWORD }}
