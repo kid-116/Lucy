@@ -188,5 +188,8 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
 
         self.__load_user_cfg()
 
+        if 'PYTEST_VERSION' in os.environ:
+            self.n_threads = 1
+
 
 config = ConfigClass()
