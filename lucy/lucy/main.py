@@ -76,8 +76,9 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
               default=config.n_threads,
               type=int,
               help='Number of execution threads. Warning: Can be flaky!')
+@click.option('-a', '--auth', 'auth', is_flag=True, default=False, help='Authenticate.')
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
-          n_threads: int) -> None:
+          n_threads: int, auth: bool) -> None:
     """Sets up directory structure for a contest.
 
 Example:
@@ -91,7 +92,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
     click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
     website = Website.from_string(site)
-    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads)
+    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads, auth)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
 

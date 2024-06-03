@@ -6,6 +6,18 @@ from lucy.utils import Token
 class Auth:  # pylint: disable=too-few-public-methods
 
     @staticmethod
+    def authenticate(scraper: Scraper, website: Website) -> None:
+        website_config = config.website[website]
+        scraper.driver.get(website_config.host)
+        assert website_config.token
+        token = Token.decode(website_config.token)
+        cookie = {
+            'name': website_config.auth_token_name,
+            'value': token,
+        }
+        scraper.driver.add_cookie(cookie)
+
+    @staticmethod
     def __login_atcoder() -> None:
         website_config = config.website[Website.ATCODER]
 
