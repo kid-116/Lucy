@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 from click.testing import CliRunner
 import pytest
@@ -11,9 +12,11 @@ from lucy.filesystem import LocalFS
 from lucy.main import setup
 
 
-@pytest.mark.parametrize('contest', [(utils.AtCoder.ABC100)])
-def test_setup(runner: CliRunner, contest: Contest) -> None:
-    result = runner.invoke(setup, [str(contest.website), contest.contest_id])
+@pytest.mark.parametrize('contest,n_threads', [(utils.AtCoder.ABC100, 2),
+                                               (utils.AtCoder.ABC100, 4)])
+def test_setup(runner: CliRunner, contest: Contest, n_threads: int) -> None:
+    args: list[Any] = ['-t', n_threads, str(contest.website), contest.contest_id]
+    result = runner.invoke(setup, args)
     assert result.exit_code == 0
 
     contest_root_dir = LocalFS.get_contest_root_dir(contest.website, contest.contest_id)

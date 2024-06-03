@@ -22,7 +22,7 @@ TESTED_CONTESTS = [
 @pytest.fixture(autouse=True, scope='session')
 def setup(runner: CliRunner) -> None:
     for contest in TESTED_CONTESTS:
-        test_setup.test_setup(runner, contest)
+        test_setup.test_setup(runner, contest, 4)
 
 
 @pytest.mark.parametrize('contest', TESTED_CONTESTS)
