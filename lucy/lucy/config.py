@@ -105,10 +105,15 @@ class WebsiteConfig:
     token: Optional[str] = None
     auth_token_name: str = 'REVEL_SESSION'
     login_path: str = 'login'
+    protected_path: str = 'settings'
 
     @property
     def login_url(self) -> str:
         return f'{self.host}/{self.login_path}'
+
+    @property
+    def protected_url(self) -> str:
+        return f'{self.host}/{self.protected_path}'
 
 
 @dataclass
