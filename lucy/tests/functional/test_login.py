@@ -5,7 +5,7 @@ import pytest
 
 from lucy.auth import Auth
 from lucy.config import config, ConfigClass, Website
-from lucy.main import login, config_set
+from lucy.main import login
 from lucy.scraper import Scraper
 
 
@@ -15,9 +15,6 @@ def setup(runner: CliRunner) -> None:
         config.website[website].user_id = os.getenv(f'{str(website).upper()}_USER_ID')
         config.website[website].passwd = os.getenv(f'{str(website).upper()}_PASSWORD')
 
-        runner.invoke(config_set,
-                      [f'{website}.Password',
-                       os.getenv(f'{str(website).upper()}_PASSWORD')])
         result = runner.invoke(login, [str(website)])
         assert result.exit_code == 0
         assert 'Success!' in result.output
