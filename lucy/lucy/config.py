@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import shelve
 from shelve import Shelf
-from typing import Optional
+from typing import Optional, Tuple
 
 import dotenv
 
@@ -106,7 +106,7 @@ class WebsiteConfig:
 
 @dataclass
 class UserConfig:
-    configurables: dict[str, str]
+    configurables: dict[str, Tuple[str, type]]
     dir_: Path
     cfg_file_name: str = 'overrides.cfg'
     cfg_default_section: str = 'DEFAULT'
@@ -121,9 +121,9 @@ class UserConfig:
         self.cfg.read(self.path)
         self.cfg_default = self.cfg[self.cfg_default_section]
         self.configurables = {
-            'AtCoder.UserId': 'website[Website.ATCODER].user_id',
-            'AtCoder.Password': 'website[Website.ATCODER].passwd',
-            'NThreads': 'n_threads',
+            'AtCoder.UserId': ('website[Website.ATCODER].user_id', str),
+            'AtCoder.Password': ('website[Website.ATCODER].passwd', str),
+            'NThreads': ('n_threads', int),
         }
 
     def gets(self) -> dict[str, Optional[str]]:
@@ -165,9 +165,13 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
     def __load_user_cfg(self) -> None:
         for key, val in self.user_cfg.gets().items():
             if val:
-                dest = f'self.{self.user_cfg.configurables[key]}'
-                val = type(eval(dest))(val)  # pylint: disable=eval-used
-                exec(f"{dest} = '{val}'")  # pylint: disable=exec-used
+                dest, type_ = self.user_cfg.configurables[key]
+                dest = f'self.{dest}'  # pylint: disable=eval-used
+                val = type_(val)
+                if isinstance(val, str):
+                    exec(f"{dest} = '{val}'")  # pylint: disable=exec-used
+                else:
+                    exec(f'{dest} = {val}')  # pylint: disable=exec-used
 
     def __init__(self) -> None:
         self.home = Path(os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'))
