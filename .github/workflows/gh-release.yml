@@ -31,7 +31,7 @@ jobs:
       - name: Create a release in GitHub
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/*.whl,dist/*.tar.gz"
+          artifacts: "lucy/dist/*.whl,lucy/dist/*.tar.gz"
           commit: ${{ github.sha }}
           generateReleaseNotes: true
           tag: ${{ github.ref_name }}
