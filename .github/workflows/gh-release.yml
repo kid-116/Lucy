@@ -28,7 +28,7 @@ jobs:
         run: |
           pip install build
           python3 -m build
-      - name: Create a Release in GitHub
+      - name: Create a release in GitHub
         uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/*.whl,dist/*.tar.gz"
