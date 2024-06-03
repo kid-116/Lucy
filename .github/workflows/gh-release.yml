@@ -1,0 +1,36 @@
+name: GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./lucy
+
+jobs:
+  gh-release:
+    name: Upload release to GitHub
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Build
+        run: |
+          pip install build
+          python3 -m build
+      - name: Create a Release in GitHub
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "artifacts/*.whl,artifacts/*.tar.gz"
+          commit: ${{ github.sha }}
+          generateReleaseNotes: true
+          tag: ${{ github.ref_name }}
