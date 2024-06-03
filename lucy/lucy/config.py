@@ -166,7 +166,7 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
         for key, val in self.user_cfg.gets().items():
             if val:
                 dest = f'self.{self.user_cfg.configurables[key]}'
-                val = type(eval(dest))(val)
+                val = type(eval(dest))(val)  # pylint: disable=eval-used
                 exec(f"{dest} = '{val}'")  # pylint: disable=exec-used
 
     def __init__(self) -> None:
