@@ -10,6 +10,7 @@ from lucy.config import config, Website
 from lucy import contest_setup
 from lucy.filesystem import LocalFS
 from lucy.tester import Tester
+from lucy.utils import Arguments, Options
 
 # pylint: disable=too-many-arguments
 
@@ -41,7 +42,7 @@ def lucy(_: Any) -> None:
               default=False,
               is_flag=True,
               help='Create a global VSCode snippet file.')
-@click.option('-f', '--force', 'force', default=False, is_flag=True, help='Force update.')
+@Options.force(help_='Force update.')
 def update_snippets(entry_dir_: str, out: str, global_: bool, force: bool) -> None:
     """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`.
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
@@ -64,10 +65,10 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 
 
 @lucy.command('setup')
-@click.argument('site', type=click.Choice(Website.choices()))
-@click.argument('contest_id', callback=utils.to_upper)
-@click.argument('task_id', required=False, default=None, type=str, callback=utils.to_upper)
-@click.argument('test_id', required=False, default=None, type=int)
+@Arguments.site(required=True)
+@Arguments.contest_id(required=True)
+@Arguments.task_id(required=False)
+@Arguments.test_id(required=False)
 @click.option('-t',
               '--n-threads',
               'n_threads',
@@ -95,9 +96,9 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
 
 @lucy.command('test')
-@click.argument('site', type=click.Choice(Website.choices()), required=False)
-@click.argument('contest_id', type=str, required=False, callback=utils.to_upper)
-@click.argument('task_id', type=str, required=False, callback=utils.to_upper)
+@Arguments.site(required=False)
+@Arguments.contest_id(required=False)
+@Arguments.task_id(required=False)
 @click.option('-t',
               '--test-id',
               'test_id',
@@ -110,12 +111,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
               is_flag=True,
               default=False,
               help='Do not stop on a `WA` verdict.')
-@click.option('-v',
-              '--verbose',
-              'verbose',
-              is_flag=True,
-              default=False,
-              help='Print debug information.')
+@Options.verbose()
 @click.option('-a',
               '--active',
               'active',
@@ -152,9 +148,7 @@ def config_() -> None:
 
 
 @config_.command('get')
-@click.argument('key',
-                type=click.Choice(list(config.user_cfg.configurables.keys())),
-                required=False)
+@Arguments.config_key(required=False)
 def config_get(key: Optional[str]) -> None:
     """Gets the current configurations. KEY may be used to fetch a specific configuration."""
     for k, val in config.user_cfg.gets().items():
@@ -173,15 +167,15 @@ def config_setup() -> None:
 
 
 @config_.command('set')
-@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
-@click.argument('value', type=str, required=True)
+@Arguments.config_key(required=True)
+@Arguments.config_value(required=True)
 def config_set(key: str, value: str) -> None:
     """Sets value for KEY."""
     config.user_cfg.set(key, value)
 
 
 @config_.command('unset')
-@click.argument('key', type=click.Choice(list(config.user_cfg.configurables.keys())), required=True)
+@Arguments.config_key(required=True)
 def config_unset(key: str) -> None:
     """Removes KEY configuration value."""
     config.user_cfg.unset(key)
