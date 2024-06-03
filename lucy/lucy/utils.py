@@ -21,6 +21,17 @@ def to_upper(_ctx: Any, _param: Any, value: Optional[str]) -> Optional[str]:
     return value
 
 
+class Token:
+
+    @staticmethod
+    def encode(token: str) -> str:
+        return token.replace('%', '?')
+
+    @staticmethod
+    def decode(token: str) -> str:
+        return token.replace('?', '%')
+
+
 class Arguments:
 
     @staticmethod

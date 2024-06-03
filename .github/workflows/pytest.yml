@@ -20,6 +20,8 @@ defaults:
 
 jobs:
   pytest:
+    environment:
+      name: test
     runs-on: ubuntu-latest
     strategy:
       matrix:

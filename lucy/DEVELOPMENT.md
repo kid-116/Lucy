@@ -11,7 +11,12 @@
 
 ## Testing
 1. `cd` into `lucy`.
-2. Run:
+2. Touch `lucy/lucy/.env`:
+    ```
+    ATCODER_USER_ID=john
+    ATCODER_PASSWORD=doe
+    ```
+3. Run:
     ```bash
     pytest
     ```

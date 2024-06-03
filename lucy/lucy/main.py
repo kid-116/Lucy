@@ -5,9 +5,10 @@ from typing import Any, Optional
 
 import click
 
-from lucy import update_snippets as us, utils
-from lucy.config import config, Website
 from lucy import contest_setup
+from lucy import update_snippets as us, utils
+from lucy.auth import Auth
+from lucy.config import config, Website
 from lucy.filesystem import LocalFS
 from lucy.tester import Tester
 from lucy.utils import Arguments, Options
@@ -153,7 +154,9 @@ def config_get(key: Optional[str]) -> None:
     """Gets the current configurations. KEY may be used to fetch a specific configuration."""
     for k, val in config.user_cfg.gets().items():
         if key is None or key == k:
-            click.echo(f"{k}: {'***' if 'pass' in k.lower() else val}")
+            is_secret = any(
+                keyword in k.lower() for keyword in ['pass', 'token']) and val is not None
+            click.echo(f"{k}: {'***' if is_secret else val}")
 
 
 @config_.command('setup')
@@ -179,3 +182,11 @@ def config_set(key: str, value: str) -> None:
 def config_unset(key: str) -> None:
     """Removes KEY configuration value."""
     config.user_cfg.unset(key)
+
+
+@lucy.command('login')
+@Arguments.site(required=True)
+def login(site: str) -> None:
+    website = Website.from_string(site)
+    Auth.login(website)
+    click.secho('Success!', fg='green', bold=True)
