@@ -68,7 +68,14 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @click.argument('contest_id', callback=utils.to_upper)
 @click.argument('task_id', required=False, default=None, type=str, callback=utils.to_upper)
 @click.argument('test_id', required=False, default=None, type=int)
-def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int]) -> None:
+@click.option('-t',
+              '--n-threads',
+              'n_threads',
+              default=config.n_threads,
+              type=int,
+              help='Number of execution threads. Warning: Can be flaky!')
+def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
+          n_threads: int) -> None:
     """Sets up directory structure for a contest.
 
 Example:
@@ -79,9 +86,10 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
     lucy setup AtCoder ARC177 C in01.txt
     """
+    click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
     website = Website.from_string(site)
-    contest_setup.contest_setup(website, contest_id, task_id, test_id)
+    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
 
@@ -130,7 +138,6 @@ run.
     website = Website.from_string(site)
     impl_hash = LocalFS.get_impl_hash(website, contest_id, task_id)
     impl_key = utils.hash_((website, contest_id, task_id))
-    # print(impl_hash)
     if config.recent_tests.get_cache().get(impl_key) == impl_hash:
         click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
     config.recent_tests.get_cache()[impl_key] = impl_hash

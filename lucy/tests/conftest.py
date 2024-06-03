@@ -8,6 +8,11 @@ from lucy.config import TestConfig
 from lucy.filesystem import LocalFS
 
 
+@pytest.fixture(scope='session')
+def runner() -> CliRunner:
+    return CliRunner()
+
+
 @pytest.fixture(autouse=True, scope='session')
 def setup_env() -> Generator[None, None, None]:
     # Setup.
@@ -17,8 +22,3 @@ def setup_env() -> Generator[None, None, None]:
 
     # Tear-down.
     shutil.rmtree(TestConfig.home)
-
-
-@pytest.fixture(scope='session')
-def runner() -> CliRunner:
-    return CliRunner()

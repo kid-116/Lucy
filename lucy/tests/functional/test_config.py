@@ -19,7 +19,7 @@ def test_config_get_single(runner: CliRunner, key: str = 'AtCoder.UserId') -> No
     assert f'{key}: ' in result.output
 
 
-def test_config_set(runner: CliRunner) -> None:
+def test_config_set_str(runner: CliRunner) -> None:
     key = 'AtCoder.UserId'
     val = 'kid116'
 
@@ -32,6 +32,23 @@ def test_config_set(runner: CliRunner) -> None:
     assert f'{key}: {val}' in result.output
 
     assert ConfigClass().website[Website.ATCODER].user_id == val
+    assert isinstance(ConfigClass().website[Website.ATCODER].user_id, str)
+
+
+def test_config_set_int(runner: CliRunner) -> None:
+    key = 'NThreads'
+    val = 1
+
+    result = runner.invoke(config_set, [key, str(val)])
+    assert result.exit_code == 0
+
+    result = runner.invoke(config_get, [key])
+    assert result.exit_code == 0
+    assert result.output.count('\n') == 1
+    assert f'{key}: {val}' in result.output
+
+    assert ConfigClass().n_threads == val
+    assert isinstance(ConfigClass().n_threads, int)
 
 
 def test_config_unset(runner: CliRunner) -> None:
