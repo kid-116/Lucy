@@ -38,3 +38,13 @@
         ```bash
         pylint --recursive=y .
         ```
+
+## Build Docs
+1. Generate markdown files:
+    ```bash
+    cd lucy
+    mdclick dumps --baseModule=lucy.main --baseCommand=lucy --docsPath=./docs/commands
+    cp README.md ./docs
+    cp DEVELOPMENT.md ./docs
+    ```
+2. Execute `mkdocs server`.

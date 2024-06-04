@@ -188,6 +188,10 @@ def config_unset(key: str) -> None:
 @lucy.command('login')
 @Arguments.site(required=True)
 def login(site: str) -> None:
+    """Authenticates for SITE. It is necessary when a accessing contest tasks requires signing in.
+For example, AtCoder requires signing in to access **ongoing** contest tasks. To login successfully,
+you must have the required credentials set in the configuration.
+    """
     website = Website.from_string(site)
     Auth.login(website)
     click.secho('Success!', fg='green', bold=True)
