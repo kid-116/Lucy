@@ -5,11 +5,12 @@ from typing import Generator
 from click.testing import CliRunner
 import pytest
 
-import utils
+import contest_truths
 
-from lucy.config import config, ConfigClass, TestConfig, Website
+from lucy.config.config import config, ConfigClass
 from lucy.filesystem import LocalFS
-from lucy.main import setup, login
+from lucy.main import login, setup
+from lucy.types import Website
 
 
 @pytest.fixture(scope='session')
@@ -18,7 +19,7 @@ def runner() -> CliRunner:
 
 
 TESTED_CONTESTS = [
-    utils.AtCoder.ABC100,
+    contest_truths.AtCoder.ABC100,
 ]
 
 
@@ -27,8 +28,8 @@ def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disa
     # Setup.
     LocalFS.setup()
 
-    for contest in TESTED_CONTESTS:
-        result = runner.invoke(setup, [str(contest.website), contest.contest_id])
+    for contest_truth in TESTED_CONTESTS:
+        result = runner.invoke(setup, [str(contest_truth.site), contest_truth.contest_id])
         assert result.exit_code == 0
 
     for website in Website:
@@ -44,4 +45,4 @@ def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disa
     yield
 
     # Tear-down.
-    shutil.rmtree(TestConfig.home)
+    shutil.rmtree(config.home)

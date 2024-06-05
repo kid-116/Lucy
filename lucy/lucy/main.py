@@ -1,18 +1,20 @@
 import importlib.metadata
-import os
 import time
 from typing import Any, Optional
 
 import click
 
-from lucy import contest_setup
-from lucy import update_snippets as us, utils
+from lucy import utils
 from lucy.auth import Auth
-from lucy.config import config, Website
+from lucy.config.config import config
 from lucy.filesystem import LocalFS
-from lucy import submit_task
-from lucy.tester import Tester
-from lucy.utils import Arguments, Options
+from lucy.ops.setup import SetupOps
+from lucy.ops.snippets import SnippetOps
+from lucy.ops.submit import SubmitOps
+from lucy.ops.testing import TestingOps
+from lucy.params.args import Arguments
+from lucy.params.opts import Options
+from lucy.types import Contest, Task, Test, Website
 
 # pylint: disable=too-many-arguments
 
@@ -26,43 +28,20 @@ def lucy(_: Any) -> None:
 
 
 @lucy.command('update-snippets')
-@click.option('-ed',
-              '--entry-dir',
-              'entry_dir_',
-              default=config.commons.dir_,
-              type=click.Path(exists=True),
-              help='Root directory for snippet files.')
-@click.option('-o',
-              '--out',
-              'out',
-              default=config.snippets.path,
-              type=click.Path(),
-              help='Output filepath.')
-@click.option('-g',
-              '--global',
-              'global_',
-              default=False,
-              is_flag=True,
-              help='Create a global VSCode snippet file.')
+@Options.global_(help_='Create a global VSCode snippet file.')
 @Options.force(help_='Force update.')
-def update_snippets(entry_dir_: str, out: str, global_: bool, force: bool) -> None:
+def update_snippets(global_: bool, force: bool) -> None:
     """Updates the VSCode snippets file. Generate snippets for all source files in the `entry_dir`.
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
     """
-    entry_dir_ = os.path.abspath(entry_dir_)
-    out = os.path.abspath(out)
-    snippets = us.run(entry_dir_, out)
+    snippets = list(SnippetOps.update())
     click.secho(f'Found {len(snippets)} snippets.', fg='green', bold=True)
     for snippet in snippets:
         click.echo(snippet)
     if global_:
-        link_absent = not config.snippets.global_link.exists()
-        if link_absent or force:
-            if not link_absent:
-                os.remove(config.snippets.global_link)
-            os.symlink(out, config.snippets.global_link)
-        else:
+        already_present = LocalFS.create_global_snippets_link(force)
+        if already_present:
             click.secho('Warning: Global snippet file already exists.', fg='yellow', bold=True)
 
 
@@ -71,13 +50,8 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @Arguments.contest_id(required=True)
 @Arguments.task_id(required=False)
 @Arguments.test_id(required=False)
-@click.option('-t',
-              '--n-threads',
-              'n_threads',
-              default=config.n_threads,
-              type=int,
-              help='Number of execution threads. Warning: Can be flaky!')
-@click.option('-a', '--auth', 'auth', is_flag=True, default=False, help='Authenticate.')
+@Options.n_threads()
+@Options.authenticate()
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
           n_threads: int, auth: bool) -> None:
     """Sets up directory structure for a contest.
@@ -92,8 +66,10 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
     """
     click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
-    website = Website.from_string(site)
-    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads, auth)
+    target = utils.build(site, contest_id, task_id, test_id)
+    assert isinstance(target, Contest)
+    for task, num_samples in SetupOps.setup(target, n_threads, auth):
+        click.secho(f'Found {num_samples} samples for task {task.task_id}.', fg='green', bold=True)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
 
@@ -102,25 +78,10 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 @Arguments.site(required=False)
 @Arguments.contest_id(required=False)
 @Arguments.task_id(required=False)
-@click.option('-t',
-              '--test-id',
-              'test_id',
-              default=None,
-              type=int,
-              help='Select a specific `test_id`')
-@click.option('-c',
-              '--continue',
-              'continue_',
-              is_flag=True,
-              default=False,
-              help='Do not stop on a `WA` verdict.')
+@Options.test_id()
+@Options.continue_('Do not stop on a `WA` verdict.')
+@Options.active()
 @Options.verbose()
-@click.option('-a',
-              '--active',
-              'active',
-              is_flag=True,
-              default=False,
-              help='Determine target from current directory.')
 def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
          test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
     """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
@@ -128,52 +89,42 @@ run.
 
     lucy test AtCoder ABC353 A 1
     """
+    target = utils.build(site, contest_id, task_id, test_id)
     if active:
-        site, contest_id, task_id = LocalFS.parse_active_path()
-    if any(val is None for val in [site, contest_id, task_id]):
-        raise click.ClickException('Could not determine active task.')
-    assert site and contest_id and task_id
+        task = LocalFS.parse_active_path()
+        if test_id:
+            target = Test.from_task(task, test_id)
+        else:
+            target = task
+    assert isinstance(target, Task)
 
-    website = Website.from_string(site)
-    impl_hash = LocalFS.get_impl_hash(website, contest_id, task_id)
-    impl_key = utils.hash_((website, contest_id, task_id))
+    impl_hash = LocalFS.get_impl_hash(target)
+    impl_key = utils.hash_((target.site, target.contest_id, target.task_id))
     if config.recent_tests.get_cache().get(impl_key) == impl_hash:
         click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
     config.recent_tests.get_cache()[impl_key] = impl_hash
-    tester = Tester(website, contest_id, task_id, test_id)
-    click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
-    tester.run(verbose, continue_)
+    click.secho(str(target), underline=True, bold=True)
+    TestingOps.run(target, verbose, continue_)
 
 
 @lucy.command('submit')
 @Arguments.site(required=False)
 @Arguments.contest_id(required=False)
 @Arguments.task_id(required=False)
-@click.option('-a',
-              '--active',
-              'active',
-              is_flag=True,
-              default=False,
-              help='Determine target from current directory.')
-@click.option('-h',
-              '--hidden',
-              'hidden',
-              is_flag=True,
-              default=False,
-              help='Do not show submission in browser.')
+@Options.active()
+@Options.hidden(help_='Do not show submission in browser.')
 def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str], active: bool,
            hidden: bool) -> None:
     """Submits solution for TASK_ID in a CONTEST_ID to a SITE.
 
-    lucy test AtCoder ABC353 A 1
+    lucy submit AtCoder ABC353 A
     """
+    target = utils.build(site, contest_id, task_id)
     if active:
-        site, contest_id, task_id = LocalFS.parse_active_path()
-    if any(val is None for val in [site, contest_id, task_id]):
-        raise click.ClickException('Could not determine active task.')
-    assert site and contest_id and task_id
-    website = Website.from_string(site)
-    submit_task.submit(website, contest_id, task_id, hidden)
+        target = LocalFS.parse_active_path()
+    assert isinstance(target, Task)
+
+    SubmitOps.submit(target, hidden)
 
 
 @lucy.group('config')
@@ -224,6 +175,5 @@ def login(site: str) -> None:
 For example, AtCoder requires signing in to access **ongoing** contest tasks. To login successfully,
 you must have the required credentials set in the configuration.
     """
-    website = Website.from_string(site)
-    Auth.login(website)
+    Auth.login(Website.from_string(site))
     click.secho('Success!', fg='green', bold=True)

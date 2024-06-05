@@ -1,13 +1,25 @@
+from typing import Optional
+
 from bs4 import BeautifulSoup
-import requests
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
 
+from lucy.config.config import config
+from lucy.types import Website
+
 
 # pylint: disable=too-few-public-methods
-class Scraper:
+class Browser:
 
-    def __init__(self, headless: bool = True, detach: bool = False, maximize: bool = True) -> None:
+    def authenticate(self, website: Website) -> None:
+        self.driver.get(config.website[website].host)
+        self.driver.add_cookie(config.website[website].cookie)
+
+    def __init__(self,
+                 headless: bool = True,
+                 detach: bool = False,
+                 maximize: bool = True,
+                 authenticate: Optional[Website] = None) -> None:
         options = ChromeOptions()
         if headless:
             options.add_argument('--headless')
@@ -20,11 +32,9 @@ class Scraper:
 
         self.driver = Chrome(options=options)
 
-    def get(self, url: str) -> BeautifulSoup:
-        status_code = requests.get(url, timeout=100).status_code
-        if status_code != 200:
-            raise ValueError(f'Failed to get {url}: {status_code}')
-        page = None
-        self.driver.get(url)
+        if authenticate:
+            self.authenticate(authenticate)
+
+    def get_soup(self) -> BeautifulSoup:
         page = self.driver.page_source
         return BeautifulSoup(page, 'lxml')
