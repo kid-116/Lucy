@@ -7,14 +7,16 @@ from selenium.webdriver import ChromeOptions
 # pylint: disable=too-few-public-methods
 class Scraper:
 
-    def __init__(self, headless: bool = True) -> None:
+    def __init__(self, headless: bool = True, detach: bool = False, maximize: bool = True) -> None:
         options = ChromeOptions()
         if headless:
             options.add_argument('--headless')
+        options.add_experimental_option('detach', detach)
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-gpu')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--window-size=1920,1080')
+        if maximize:
+            options.add_argument('--window-size=1920,1080')
 
         self.driver = Chrome(options=options)
 

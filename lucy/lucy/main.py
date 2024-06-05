@@ -10,6 +10,7 @@ from lucy import update_snippets as us, utils
 from lucy.auth import Auth
 from lucy.config import config, Website
 from lucy.filesystem import LocalFS
+from lucy import submit_task
 from lucy.tester import Tester
 from lucy.utils import Arguments, Options
 
@@ -142,6 +143,37 @@ run.
     tester = Tester(website, contest_id, task_id, test_id)
     click.secho(f'{website} - {contest_id} - {task_id}', underline=True, bold=True)
     tester.run(verbose, continue_)
+
+
+@lucy.command('submit')
+@Arguments.site(required=False)
+@Arguments.contest_id(required=False)
+@Arguments.task_id(required=False)
+@click.option('-a',
+              '--active',
+              'active',
+              is_flag=True,
+              default=False,
+              help='Determine target from current directory.')
+@click.option('-h',
+              '--hidden',
+              'hidden',
+              is_flag=True,
+              default=False,
+              help='Do not show submission in browser.')
+def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str], active: bool,
+           hidden: bool) -> None:
+    """Submits solution for TASK_ID in a CONTEST_ID to a SITE.
+
+    lucy test AtCoder ABC353 A 1
+    """
+    if active:
+        site, contest_id, task_id = LocalFS.parse_active_path()
+    if any(val is None for val in [site, contest_id, task_id]):
+        raise click.ClickException('Could not determine active task.')
+    assert site and contest_id and task_id
+    website = Website.from_string(site)
+    submit_task.submit(website, contest_id, task_id, hidden)
 
 
 @lucy.group('config')

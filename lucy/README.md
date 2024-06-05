@@ -25,7 +25,7 @@ solutions.
 - [ ] Fetch Hidden Test Cases (after the contest 🤪)
 - [x] Test Solution
 - [x] Setup Snippets
-- [ ] Submit Solution
+- [x] Submit Solution
 - [ ] What else? 🤔
 
 ## Installation

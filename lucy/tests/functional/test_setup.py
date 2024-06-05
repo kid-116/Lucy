@@ -4,7 +4,7 @@ from typing import Any
 from click.testing import CliRunner
 import pytest
 
-import utils
+import conftest
 from utils import Contest
 
 from lucy.config import SampleType
@@ -12,7 +12,7 @@ from lucy.filesystem import LocalFS
 from lucy.main import setup
 
 
-@pytest.mark.parametrize('contest', [(utils.AtCoder.ABC100)])
+@pytest.mark.parametrize('contest', conftest.TESTED_CONTESTS)
 def test_setup(runner: CliRunner, contest: Contest) -> None:
     args: list[Any] = [str(contest.website), contest.contest_id]
     result = runner.invoke(setup, args)
