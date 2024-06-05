@@ -16,7 +16,6 @@
     pytest
     ```
 
-
 ## Lint
 1. `cd` into `lucy`.
     - `yapf`
