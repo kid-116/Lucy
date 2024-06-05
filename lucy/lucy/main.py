@@ -157,8 +157,7 @@ run.
               help='Determine target from current directory.')
 def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
            active: bool) -> None:
-    """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
-run.
+    """Submits solution for TASK_ID in a CONTEST_ID to a SITE.
 
     lucy test AtCoder ABC353 A 1
     """
