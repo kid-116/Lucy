@@ -7,9 +7,9 @@ from lucy.filesystem import LocalFS
 from lucy.scraper import Scraper
 
 
-def submit(website: Website, contest_id: str, task_id: str) -> None:
+def submit(website: Website, contest_id: str, task_id: str, hidden: bool) -> None:
     if website == Website.ATCODER:
-        scraper = Scraper(headless=False, detach=True, maximize=False)
+        scraper = Scraper(headless=hidden, detach=not hidden, maximize=False)
         Auth.authenticate(scraper, website)
         scraper.driver.get(f'{config.website[website].host}/contests/{contest_id}/submit')
         task_selector = Select(scraper.driver.find_element(value='select-task'))

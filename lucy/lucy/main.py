@@ -155,8 +155,14 @@ run.
               is_flag=True,
               default=False,
               help='Determine target from current directory.')
-def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
-           active: bool) -> None:
+@click.option('-h',
+              '--hidden',
+              'hidden',
+              is_flag=True,
+              default=False,
+              help='Do not show submission in browser.')
+def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str], active: bool,
+           hidden: bool) -> None:
     """Submits solution for TASK_ID in a CONTEST_ID to a SITE.
 
     lucy test AtCoder ABC353 A 1
@@ -167,7 +173,7 @@ def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str
         raise click.ClickException('Could not determine active task.')
     assert site and contest_id and task_id
     website = Website.from_string(site)
-    submit_task.submit(website, contest_id, task_id)
+    submit_task.submit(website, contest_id, task_id, hidden)
 
 
 @lucy.group('config')
