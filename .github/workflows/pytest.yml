@@ -20,6 +20,9 @@ defaults:
 
 jobs:
   pytest:
+    env:
+      ATCODER_USER_ID: ${{ secrets.ATCODER_USER_ID }}
+      ATCODER_PASSWORD: ${{ secrets.ATCODER_PASSWORD }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

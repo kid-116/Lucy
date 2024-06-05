@@ -102,6 +102,18 @@ class WebsiteConfig:
     host: str
     user_id: Optional[str] = None
     passwd: Optional[str] = None
+    token: Optional[str] = None
+    auth_token_name: str = 'REVEL_SESSION'
+    login_path: str = 'login'
+    protected_path: str = 'settings'
+
+    @property
+    def login_url(self) -> str:
+        return f'{self.host}/{self.login_path}'
+
+    @property
+    def protected_url(self) -> str:
+        return f'{self.host}/{self.protected_path}'
 
 
 @dataclass
@@ -123,6 +135,7 @@ class UserConfig:
         self.configurables = {
             'AtCoder.UserId': ('website[Website.ATCODER].user_id', str),
             'AtCoder.Password': ('website[Website.ATCODER].passwd', str),
+            'AtCoder.Token': ('website[Website.ATCODER].token', str),
             'NThreads': ('n_threads', int),
         }
 

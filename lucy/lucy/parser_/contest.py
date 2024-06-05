@@ -11,11 +11,12 @@ class ContestParser:
                  website: Website,
                  contest_id: str,
                  task_id: Optional[str] = None,
-                 n_threads: int = config.n_threads) -> None:
+                 n_threads: int = config.n_threads,
+                 auth: bool = False) -> None:
         self.website = website
 
         match self.website:
             case Website.ATCODER:
-                self.parser = AtCoderParser(contest_id, task_id, n_threads)
+                self.parser = AtCoderParser(contest_id, task_id, n_threads, auth)
             case _:
                 raise NotImplementedError()

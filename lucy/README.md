@@ -38,6 +38,20 @@ pip install lucy01
 
     Specify home directory for `lucy`.
 
+## Configuration
+Lucy supports the following configuration options which can be accessed using the `config` command
+group:
+
+- `AtCoder.UserId`, `AtCoder.Password`
+
+    AtCoder login credentials. Required to perform tasks which require signing in such as setting up
+    an **ongoing** contest.
+
+- `NThreads`
+
+    Default threads of execution to be used when setting up a contest. `4` seems to be a good
+    choice.
+
 ## Getting Started
 1. Set the environment variable `$LUCY_HOME` as preferred. By default, it uses the `~/.lucy`.
 2. Get help!

@@ -5,9 +5,10 @@ from typing import Any, Optional
 
 import click
 
-from lucy import update_snippets as us, utils
-from lucy.config import config, Website
 from lucy import contest_setup
+from lucy import update_snippets as us, utils
+from lucy.auth import Auth
+from lucy.config import config, Website
 from lucy.filesystem import LocalFS
 from lucy.tester import Tester
 from lucy.utils import Arguments, Options
@@ -75,8 +76,9 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
               default=config.n_threads,
               type=int,
               help='Number of execution threads. Warning: Can be flaky!')
+@click.option('-a', '--auth', 'auth', is_flag=True, default=False, help='Authenticate.')
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
-          n_threads: int) -> None:
+          n_threads: int, auth: bool) -> None:
     """Sets up directory structure for a contest.
 
 Example:
@@ -90,7 +92,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
     click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
     website = Website.from_string(site)
-    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads)
+    contest_setup.contest_setup(website, contest_id, task_id, test_id, n_threads, auth)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
 
@@ -153,7 +155,9 @@ def config_get(key: Optional[str]) -> None:
     """Gets the current configurations. KEY may be used to fetch a specific configuration."""
     for k, val in config.user_cfg.gets().items():
         if key is None or key == k:
-            click.echo(f"{k}: {'***' if 'pass' in k.lower() else val}")
+            is_secret = any(
+                keyword in k.lower() for keyword in ['pass', 'token']) and val is not None
+            click.echo(f"{k}: {'***' if is_secret else val}")
 
 
 @config_.command('setup')
@@ -179,3 +183,15 @@ def config_set(key: str, value: str) -> None:
 def config_unset(key: str) -> None:
     """Removes KEY configuration value."""
     config.user_cfg.unset(key)
+
+
+@lucy.command('login')
+@Arguments.site(required=True)
+def login(site: str) -> None:
+    """Authenticates for SITE. It is necessary when a accessing contest tasks requires signing in.
+For example, AtCoder requires signing in to access **ongoing** contest tasks. To login successfully,
+you must have the required credentials set in the configuration.
+    """
+    website = Website.from_string(site)
+    Auth.login(website)
+    click.secho('Success!', fg='green', bold=True)
