@@ -22,7 +22,7 @@ solutions.
 
 ## Featues
 - [x] Fetch Sample Test Cases
-- [ ] Fetch Hidden Test Cases (after the contest 🤪)
+- [x] Fetch Hidden Test Cases (after the contest 🤪)
 - [x] Test Solution
 - [x] Setup Snippets
 - [x] Submit Solution

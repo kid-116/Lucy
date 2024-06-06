@@ -1,8 +1,6 @@
 from __future__ import annotations
 import subprocess
-from typing import Tuple
-
-import click
+from typing import Literal, Optional, Tuple, Union
 
 from lucy.filesystem import LocalFS
 from lucy.types import Task, Test, Verdict
@@ -11,14 +9,16 @@ from lucy.types import Task, Test, Verdict
 # pylint: disable=too-few-public-methods
 class TestingOps:
 
-    @staticmethod
-    def __compile(target: Task) -> None:
+    def __init__(self, continue_: bool):
+        # self.verbose = verbose
+        self.continue_ = continue_
+
+    def __compile(self, target: Task) -> None:
         impl_path = LocalFS.get_impl_path(target)
         bin_path = LocalFS.get_impl_path(target, bin_=True)
         subprocess.check_call(['g++', impl_path, '-o', bin_path])
 
-    @staticmethod
-    def __exec(target: Test, in_txt: str, truth_txt: str) -> Tuple[Verdict, str]:
+    def __exec(self, target: Test, in_txt: str, truth_txt: str) -> Tuple[Verdict, str]:
         bin_path = LocalFS.get_impl_path(target, bin_=True)
         with subprocess.Popen([bin_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE) as process:
             assert process.stdin
@@ -29,27 +29,24 @@ class TestingOps:
             process.wait()
         return Verdict.AC if out_txt.strip() == truth_txt.strip() else Verdict.WA, out_txt
 
-    @staticmethod
-    def run(target: Task | Test, verbose: bool = False, continue_: bool = False) -> None:
-        TestingOps.__compile(target)
+    def run(self, target: Task) -> list[Optional[Union[Literal[Verdict.AC], str]]]:
+        self.__compile(target)
 
         num_tests = LocalFS.num_samples(target)
         tests = [target] if isinstance(
             target, Test) else [Test.from_task(target, i) for i in range(num_tests)]
 
+        result: list[Optional[Union[Literal[Verdict.AC], str]]] = [None] * num_tests
+
         for test in tests:
-            click.echo(f'Test#{test.test_id:02d}/{num_tests - 1:02d}', nl=False)
-            click.echo(f'{"." * 50}', nl=False)
             in_txt, truth_txt = LocalFS.load_test(test)
-            verdict, out_txt = TestingOps.__exec(test, in_txt, truth_txt)
-            verdict.echo()
+            verdict, out_txt = self.__exec(test, in_txt, truth_txt)
             if verdict == Verdict.WA:
-                if verbose:
-                    click.secho("Input:", bg='white', bold=True)
-                    print(in_txt.strip())
-                    click.secho("Output:", bg='red', bold=True)
-                    print(out_txt.strip())
-                    click.secho("Expected:", bg='green', bold=True)
-                    print(truth_txt.strip())
-                if not continue_:
+                result[test.test_id] = out_txt
+
+                if not self.continue_:
                     break
+            else:
+                result[test.test_id] = verdict
+
+        return result

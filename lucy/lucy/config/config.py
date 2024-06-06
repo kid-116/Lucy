@@ -28,7 +28,12 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
     impl: ImplConfig = ImplConfig()
     samples_dir_name: str = 'tests'
     storage_dir_name: str = '.storage'
+    storage_tmp_dir_name: str = 'tmp'
     n_threads: int = 4
+
+    @property
+    def tmp_storage_path(self) -> Path:
+        return self.storage_path / self.storage_tmp_dir_name
 
     @property
     def storage_path(self) -> Path:

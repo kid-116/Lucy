@@ -43,6 +43,8 @@ class LocalFS:
 
     @staticmethod
     def num_samples(task: Task) -> int:
+        if isinstance(task, Test):
+            task = task.task
         return len(os.listdir(LocalFS.get_sample_path(task, SampleType.IN)))
 
     @staticmethod
@@ -162,3 +164,20 @@ int main() {
                 os.remove(config.snippets.global_link)
             os.symlink(config.snippets.path, config.snippets.global_link)
         return not link_absent
+
+    @staticmethod
+    def get_tmp_file_path(filename: str) -> Path:
+        return config.tmp_storage_path / filename
+
+    @staticmethod
+    def delete(path: Path) -> None:
+        if not path.exists():
+            return
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
+
+    @staticmethod
+    def clear() -> None:
+        LocalFS.delete(config.tmp_storage_path)

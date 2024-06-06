@@ -14,7 +14,7 @@ from lucy.ops.submit import SubmitOps
 from lucy.ops.testing import TestingOps
 from lucy.params.args import Arguments
 from lucy.params.opts import Options
-from lucy.types import Contest, Task, Test, Website
+from lucy.types import Contest, Task, Test, Verdict, Website
 
 # pylint: disable=too-many-arguments
 
@@ -35,7 +35,7 @@ def update_snippets(global_: bool, force: bool) -> None:
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
     """
-    snippets = list(SnippetOps.update())
+    snippets = list(SnippetOps().update())
     click.secho(f'Found {len(snippets)} snippets.', fg='green', bold=True)
     for snippet in snippets:
         click.echo(snippet)
@@ -49,10 +49,10 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @Arguments.site(required=True)
 @Arguments.contest_id(required=True)
 @Arguments.task_id(required=False)
-@Arguments.test_id(required=False)
+@Arguments.test_id(required=False, type_=str)
 @Options.n_threads()
 @Options.authenticate()
-def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
+def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str],
           n_threads: int, auth: bool) -> None:
     """Sets up directory structure for a contest.
 
@@ -64,11 +64,16 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
     lucy setup AtCoder ARC177 C in01.txt
     """
-    click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
-    target = utils.build(site, contest_id, task_id, test_id)
+    target = utils.build(site, contest_id, task_id)
+    if test_id:
+        assert isinstance(target, Task)
+        for status in SetupOps().get_hidden(target, test_id):
+            click.echo(status)
+        return
     assert isinstance(target, Contest)
-    for task, num_samples in SetupOps.setup(target, n_threads, auth):
+    click.echo(f'Using {n_threads} thread(s).')
+    for task, num_samples in SetupOps(n_threads, auth).run(target):
         click.secho(f'Found {num_samples} samples for task {task.task_id}.', fg='green', bold=True)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
@@ -82,6 +87,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 @Options.continue_('Do not stop on a `WA` verdict.')
 @Options.active()
 @Options.verbose()
+# pylint: disable=too-many-locals
 def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
          test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
     """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
@@ -104,7 +110,23 @@ run.
         click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
     config.recent_tests.get_cache()[impl_key] = impl_hash
     click.secho(str(target), underline=True, bold=True)
-    TestingOps.run(target, verbose, continue_)
+    results = TestingOps(continue_).run(target)
+    for idx, result in enumerate(results):
+        if result is None:
+            continue
+        click.echo(f'Test#{idx:02d}/{len(results) - 1:02d}', nl=False)
+        click.echo(f'{"." * 50}', nl=False)
+        verdict: Verdict = Verdict.WA if isinstance(result, str) else Verdict.AC
+        verdict.echo()
+        if isinstance(result, str) and verbose:
+            sample = Test.from_task(target, idx)
+            in_txt, truth_txt = LocalFS.load_test(sample)
+            click.secho("Input:", bg='white', bold=True)
+            print(in_txt.strip())
+            click.secho("Output:", bg='red', bold=True)
+            print(result.strip())
+            click.secho("Expected:", bg='green', bold=True)
+            print(truth_txt.strip())
 
 
 @lucy.command('submit')
@@ -124,7 +146,7 @@ def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str
         target = LocalFS.parse_active_path()
     assert isinstance(target, Task)
 
-    SubmitOps.submit(target, hidden)
+    SubmitOps().submit(target, hidden)
 
 
 @lucy.group('config')
