@@ -8,8 +8,7 @@ from lucy.filesystem import LocalFS
 
 class SnippetOps:  # pylint: disable=too-few-public-methods
 
-    @staticmethod
-    def __generate_snippet(path: Path) -> tuple[str, dict[str, str | list[str]]]:
+    def __generate_snippet(self, path: Path) -> tuple[str, dict[str, str | list[str]]]:
         filename = path.name
         name, ext = filename.split('.')
         scope = ext
@@ -31,12 +30,11 @@ class SnippetOps:  # pylint: disable=too-few-public-methods
             'body': body,
         }
 
-    @staticmethod
-    def update() -> Generator[Path, None, None]:
+    def update(self) -> Generator[Path, None, None]:
         snippets = {}
         for file in LocalFS.get_snippet_files():
             yield file.relative_to(config.home)
-            name, snippet = SnippetOps.__generate_snippet(file)
+            name, snippet = self.__generate_snippet(file)
             snippets[name] = snippet
         with open(config.snippets.path, 'w', encoding='utf-8') as f:
             json.dump(snippets, f, indent=2)

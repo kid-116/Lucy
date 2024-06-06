@@ -43,6 +43,8 @@ class LocalFS:
 
     @staticmethod
     def num_samples(task: Task) -> int:
+        if isinstance(task, Test):
+            task = task.task
         return len(os.listdir(LocalFS.get_sample_path(task, SampleType.IN)))
 
     @staticmethod
