@@ -1,7 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lucy.types import Token
+
+@dataclass
+class Token:  # pylint: disable=too-few-public-methods
+    value: str
+
+    def __init__(self, value: str) -> None:
+        self.value = value.replace('?', '%')
+
+    def __str__(self) -> str:
+        return self.value.replace('%', '?')
 
 
 @dataclass

@@ -7,10 +7,9 @@ import pytest
 
 import contest_truths
 
-from lucy.config.config import config, ConfigClass
-from lucy.filesystem import LocalFS
+from lucy import utils
+from lucy.config.config import config, ConfigClass, Website
 from lucy.main import login, setup
-from lucy.types import Website
 
 
 @pytest.fixture(scope='session')
@@ -26,7 +25,7 @@ TESTED_CONTESTS = [
 @pytest.fixture(autouse=True, scope='session')
 def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disable=redefined-outer-name
     # Setup.
-    LocalFS.setup()
+    utils.init()
 
     for contest_truth in TESTED_CONTESTS:
         result = runner.invoke(setup, [str(contest_truth.site), contest_truth.contest_id])

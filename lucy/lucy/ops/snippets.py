@@ -1,9 +1,9 @@
 import json
+import os
 from pathlib import Path
 from typing import Generator
 
 from lucy.config.config import config
-from lucy.filesystem import LocalFS
 
 
 class SnippetOps:  # pylint: disable=too-few-public-methods
@@ -30,11 +30,27 @@ class SnippetOps:  # pylint: disable=too-few-public-methods
             'body': body,
         }
 
+    def __get_snippet_files(self, path: Path = config.commons.dir_) -> Generator[Path, None, None]:
+        for entry in os.scandir(path):
+            entry_path = Path(entry.path)
+            if entry.is_file():
+                yield entry_path
+            elif entry.is_dir():
+                yield from self.__get_snippet_files(entry_path)
+
     def update(self) -> Generator[Path, None, None]:
         snippets = {}
-        for file in LocalFS.get_snippet_files():
+        for file in self.__get_snippet_files():
             yield file.relative_to(config.home)
             name, snippet = self.__generate_snippet(file)
             snippets[name] = snippet
         with open(config.snippets.path, 'w', encoding='utf-8') as f:
             json.dump(snippets, f, indent=2)
+
+    def create_global_snippets_link(self, force: bool = False) -> bool:
+        link_absent = not config.snippets.global_link.exists()
+        if link_absent or force:
+            if not link_absent:
+                os.remove(config.snippets.global_link)
+            os.symlink(config.snippets.path, config.snippets.global_link)
+        return not link_absent

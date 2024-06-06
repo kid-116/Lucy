@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from types_ import ContestTruth
 
-from lucy.types import Website
+from lucy.config.config import Website
 
 
 @dataclass

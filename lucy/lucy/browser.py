@@ -8,9 +8,7 @@ from selenium.webdriver import ChromeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 
-from lucy.config.config import config
-from lucy.filesystem import LocalFS
-from lucy.types import Website
+from lucy.config.config import config, Website
 
 
 # pylint: disable=too-few-public-methods
@@ -26,7 +24,7 @@ class Browser:
                  detach: bool = False,
                  maximize: bool = True,
                  authenticate: Optional[Website] = None,
-                 download_dir: Path = config.tmp_storage_path) -> None:
+                 download_dir: Path = config.storage.tmp_path) -> None:
         options = ChromeOptions()
         if headless:
             options.add_argument('--headless')
@@ -62,7 +60,7 @@ class Browser:
         time.sleep(timeout)
 
     def read_downloaded(self, filename: str) -> str:
-        path = LocalFS.get_tmp_file_path(filename)
-        contents = LocalFS.read(path)
-        LocalFS.delete(path)
+        path = config.storage.get_tmp_path(filename)
+        contents = path.read_text()
+        config.storage.delete_tmp(filename)
         return contents

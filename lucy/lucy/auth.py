@@ -1,6 +1,6 @@
-from lucy.config.config import config
 from lucy.browser import Browser
-from lucy.types import Token, Website
+from lucy.config.config import config, Website
+from lucy.config.website import Token
 
 
 class Auth:  # pylint: disable=too-few-public-methods

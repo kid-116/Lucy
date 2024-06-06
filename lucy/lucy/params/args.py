@@ -2,8 +2,7 @@ from typing import Any, Callable, Optional
 
 import click
 
-from lucy.config.config import config
-from lucy.types import Website
+from lucy.config.config import config, Website
 
 
 class Arguments:

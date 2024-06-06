@@ -1,6 +1,5 @@
 from lucy.browser import Browser
-from lucy.config.config import config
-from lucy.types import Website
+from lucy.config.config import config, Website
 
 
 def test_login_atcoder() -> None:

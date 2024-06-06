@@ -6,15 +6,14 @@ import click
 
 from lucy import utils
 from lucy.auth import Auth
-from lucy.config.config import config
-from lucy.filesystem import LocalFS
+from lucy.config.config import config, Website
 from lucy.ops.setup import SetupOps
 from lucy.ops.snippets import SnippetOps
 from lucy.ops.submit import SubmitOps
 from lucy.ops.testing import TestingOps
 from lucy.params.args import Arguments
 from lucy.params.opts import Options
-from lucy.types import Contest, Task, Test, Verdict, Website
+from lucy.types import Contest, Task, Verdict
 
 # pylint: disable=too-many-arguments
 
@@ -24,7 +23,7 @@ from lucy.types import Contest, Task, Test, Verdict, Website
 @click.pass_context
 def lucy(_: Any) -> None:
     """"""  # pylint: disable=empty-docstring
-    LocalFS.setup()
+    utils.init()
 
 
 @lucy.command('update-snippets')
@@ -35,12 +34,13 @@ def update_snippets(global_: bool, force: bool) -> None:
 By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a link in
 `$HOME/.config/Code/User/snippets` to `$LUCY_HOME/.vscode/cp.code-snippets`.
     """
-    snippets = list(SnippetOps().update())
+    executor = SnippetOps()
+    snippets = list(executor.update())
     click.secho(f'Found {len(snippets)} snippets.', fg='green', bold=True)
     for snippet in snippets:
         click.echo(snippet)
     if global_:
-        already_present = LocalFS.create_global_snippets_link(force)
+        already_present = executor.create_global_snippets_link(force)
         if already_present:
             click.secho('Warning: Global snippet file already exists.', fg='yellow', bold=True)
 
@@ -97,14 +97,11 @@ run.
     """
     target = utils.build(site, contest_id, task_id, test_id)
     if active:
-        task = LocalFS.parse_active_path()
+        target = utils.get_active_task()
         if test_id:
-            target = Test.from_task(task, test_id)
-        else:
-            target = task
+            target = target.get_test(test_id)
     assert isinstance(target, Task)
-
-    impl_hash = LocalFS.get_impl_hash(target)
+    impl_hash = target.get_impl_hash()
     impl_key = utils.hash_((target.site, target.contest_id, target.task_id))
     if config.recent_tests.get_cache().get(impl_key) == impl_hash:
         click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
@@ -119,8 +116,7 @@ run.
         verdict: Verdict = Verdict.WA if isinstance(result, str) else Verdict.AC
         verdict.echo()
         if isinstance(result, str) and verbose:
-            sample = Test.from_task(target, idx)
-            in_txt, truth_txt = LocalFS.load_test(sample)
+            in_txt, truth_txt = target.get_test(idx).load()
             click.secho("Input:", bg='white', bold=True)
             print(in_txt.strip())
             click.secho("Output:", bg='red', bold=True)
@@ -143,7 +139,7 @@ def submit(site: Optional[str], contest_id: Optional[str], task_id: Optional[str
     """
     target = utils.build(site, contest_id, task_id)
     if active:
-        target = LocalFS.parse_active_path()
+        target = utils.get_active_task()
     assert isinstance(target, Task)
 
     SubmitOps().submit(target, hidden)

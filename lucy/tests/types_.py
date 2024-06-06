@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-from lucy.types import Contest, Task, Website
+from lucy.config.config import Website
+from lucy.types import Contest, Task
 
 
 @dataclass

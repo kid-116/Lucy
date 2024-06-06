@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, Tuple
 
-from lucy.types import Token
+from lucy.config.website import Token
 
 
 @dataclass

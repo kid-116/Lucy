@@ -6,9 +6,8 @@ from selenium.webdriver.common.by import By
 
 from lucy import utils
 from lucy.browser import Browser
-from lucy.config.config import config
-from lucy.filesystem import LocalFS
-from lucy.types import Contest, Task, Test, Website
+from lucy.config.config import config, Website
+from lucy.types import Contest, Task, Test
 
 
 class SetupOps:  # pylint: disable=too-few-public-methods
@@ -60,13 +59,14 @@ class SetupOps:  # pylint: disable=too-few-public-methods
             for thread in futures.as_completed(threads):
                 task, tests = thread.result()
                 yield task, len(tests)
-                LocalFS.store_samples(task, tests)
+                task.delete_tests()
+                task.store_tests(tests)
 
         for task in tasks:
-            LocalFS.create_impl_file(task)
+            task.create_impl_file()
 
     def __get_atcoder_hidden(self, task: Task, test_id: str) -> Generator[str, None, None]:
-        LocalFS.clear()
+        config.storage.clear_tmp()
         browser = Browser()
         browser.driver.get(
             'https://www.dropbox.com/sh/nx3tnilzqz7df8a/AAAYlTq2tiEHl5hsESw6-yfLa?dl=0')
@@ -115,7 +115,7 @@ class SetupOps:  # pylint: disable=too-few-public-methods
         yield f'Downloading {test_id} output file ...'
         browser.sleep(5)
         out_txt = browser.read_downloaded(test_id)
-        idx = LocalFS.store_sample(task, (in_txt, out_txt))
+        idx = task.store_test((in_txt, out_txt))
         yield ''
         yield f'{test_id} setup as Test#{idx:02d}.'
 

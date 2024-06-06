@@ -2,9 +2,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
 from lucy.browser import Browser
-from lucy.config.config import config
-from lucy.filesystem import LocalFS
-from lucy.types import Task, Website
+from lucy.config.config import config, Website
+from lucy.types import Task
 
 
 class SubmitOps:  # pylint: disable=too-few-public-methods
@@ -17,7 +16,7 @@ class SubmitOps:  # pylint: disable=too-few-public-methods
             browser.driver.find_element(by=By.CSS_SELECTOR, value='#select-lang>div>select'))
         lang_selector.select_by_value('5001')
         soln_input = browser.driver.find_element(by=By.CSS_SELECTOR, value='#editor>textarea')
-        soln = LocalFS.read(LocalFS.get_impl_path(task))
+        soln = task.impl_path.read_text()
         soln_input.send_keys(soln)
         browser.driver.find_element(value='submit').click()
         detail_link = browser.driver.find_element(

@@ -1,8 +1,7 @@
 from click.testing import CliRunner
 
-from lucy.config.config import config, ConfigClass
+from lucy.config.config import config, ConfigClass, Website
 from lucy.main import config_get, config_set, config_unset
-from lucy.types import Website
 
 
 def test_config_get(runner: CliRunner) -> None:
