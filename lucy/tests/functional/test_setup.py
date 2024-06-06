@@ -52,7 +52,7 @@ def test_setup_hidden(runner: CliRunner, contest: ContestTruth, task_id: str, te
     result = runner.invoke(setup, [str(contest.site), contest.contest_id, task_id, test_id])
     assert result.exit_code == 0
     task = Task.from_contest(contest, task_id)
-    assert LocalFS.num_samples() == 7
+    assert LocalFS.num_samples(task) == 7
     test = Test.from_task(task, 6)
     LocalFS.delete(LocalFS.get_sample_path(test, type_=SampleType.IN))
     LocalFS.delete(LocalFS.get_sample_path(test, type_=SampleType.OUT))
