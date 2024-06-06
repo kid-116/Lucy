@@ -9,7 +9,7 @@ from lucy.types import Task, Test, Verdict
 # pylint: disable=too-few-public-methods
 class TestingOps:
 
-    def __init__(self, verbose: bool, continue_: bool):
+    def __init__(self, continue_: bool):
         # self.verbose = verbose
         self.continue_ = continue_
 
@@ -43,7 +43,7 @@ class TestingOps:
             verdict, out_txt = self.__exec(test, in_txt, truth_txt)
             if verdict == Verdict.WA:
                 result[test.test_id] = out_txt
-                
+
                 if not self.continue_:
                     break
             else:

@@ -24,14 +24,25 @@ TESTED_CONTESTS = [
 
 
 @pytest.fixture(autouse=True, scope='session')
-def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disable=redefined-outer-name
+def setup_env() -> Generator[None, None, None]:
     # Setup.
     LocalFS.setup()
 
+    yield
+
+    # Tear-down.
+    shutil.rmtree(config.home)
+
+
+@pytest.fixture(autouse=True, scope='session')
+def setup_contests(runner: CliRunner) -> None:  # pylint: disable=redefined-outer-name
     for contest_truth in TESTED_CONTESTS:
         result = runner.invoke(setup, [str(contest_truth.site), contest_truth.contest_id])
         assert result.exit_code == 0
 
+
+@pytest.fixture(scope='session', autouse=True)
+def login_all(runner: CliRunner) -> None:  # pylint: disable=redefined-outer-name
     for website in Website:
         config.website[website].user_id = os.getenv(f'{str(website).upper()}_USER_ID')
         config.website[website].passwd = os.getenv(f'{str(website).upper()}_PASSWORD')
@@ -41,8 +52,3 @@ def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disa
         assert 'Success!' in result.output
 
         config.website[website].token = ConfigClass().website[website].token
-
-    yield
-
-    # Tear-down.
-    shutil.rmtree(config.home)

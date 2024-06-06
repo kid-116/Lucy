@@ -35,8 +35,8 @@ class Arguments:
                               default=None)
 
     @staticmethod
-    def test_id(required: bool = False) -> Callable[[Any], Any]:
-        return click.argument('test_id', type=int, required=required, default=None)
+    def test_id(required: bool = False, type_: type = int) -> Callable[[Any], Any]:
+        return click.argument('test_id', type=type_, required=required, default=None)
 
     @staticmethod
     def config_key(required: bool = False) -> Callable[[Any], Any]:

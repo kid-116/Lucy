@@ -49,10 +49,10 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @Arguments.site(required=True)
 @Arguments.contest_id(required=True)
 @Arguments.task_id(required=False)
-@Arguments.test_id(required=False)
+@Arguments.test_id(required=False, type_=str)
 @Options.n_threads()
 @Options.authenticate()
-def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int],
+def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str],
           n_threads: int, auth: bool) -> None:
     """Sets up directory structure for a contest.
 
@@ -64,10 +64,15 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 
     lucy setup AtCoder ARC177 C in01.txt
     """
-    click.echo(f'Using {n_threads} thread(s).')
     start = time.time()
-    target = utils.build(site, contest_id, task_id, test_id)
+    target = utils.build(site, contest_id, task_id)
+    if test_id:
+        assert isinstance(target, Task)
+        for status in SetupOps().get_hidden(target, test_id):
+            click.echo(status)
+        return
     assert isinstance(target, Contest)
+    click.echo(f'Using {n_threads} thread(s).')
     for task, num_samples in SetupOps(n_threads, auth).run(target):
         click.secho(f'Found {num_samples} samples for task {task.task_id}.', fg='green', bold=True)
     end = time.time()
@@ -82,6 +87,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
 @Options.continue_('Do not stop on a `WA` verdict.')
 @Options.active()
 @Options.verbose()
+# pylint: disable=too-many-locals
 def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
          test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
     """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
@@ -104,7 +110,7 @@ run.
         click.secho(config.recent_tests.warning_msg, fg='yellow', bold=True)
     config.recent_tests.get_cache()[impl_key] = impl_hash
     click.secho(str(target), underline=True, bold=True)
-    results = TestingOps(verbose, continue_).run(target)
+    results = TestingOps(continue_).run(target)
     for idx, result in enumerate(results):
         if result is None:
             continue
@@ -113,14 +119,15 @@ run.
         verdict: Verdict = Verdict.WA if isinstance(result, str) else Verdict.AC
         verdict.echo()
         if isinstance(result, str) and verbose:
-            test = Test.from_task(target, idx)
-            in_txt, truth_txt = LocalFS.load_test(test)
+            sample = Test.from_task(target, idx)
+            in_txt, truth_txt = LocalFS.load_test(sample)
             click.secho("Input:", bg='white', bold=True)
             print(in_txt.strip())
             click.secho("Output:", bg='red', bold=True)
             print(result.strip())
             click.secho("Expected:", bg='green', bold=True)
             print(truth_txt.strip())
+
 
 @lucy.command('submit')
 @Arguments.site(required=False)
