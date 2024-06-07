@@ -134,7 +134,7 @@ class Test(Task):
         assert self.in_path.exists()
         os.remove(self.in_path)
         os.remove(self.out_path)
-        for i in range(self.test_id + 1, self.task.get_num_tests()):
+        for i in range(self.test_id + 1, self.task.get_num_tests() + 1):
             self.task.get_test(i).rename(i - 1)
 
     @property
@@ -147,6 +147,9 @@ class Test(Task):
 
     def load(self) -> Tuple[str, str]:
         return self.in_path.read_text().strip(), self.out_path.read_text().strip()
+
+    def exists(self) -> bool:
+        return self.in_path.exists() and self.out_path.exists()
 
 
 ContestElement = Union[Website, Contest, Task, Test]
