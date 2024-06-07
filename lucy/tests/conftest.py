@@ -1,5 +1,4 @@
 import os
-import shutil
 from typing import Generator
 
 from click.testing import CliRunner
@@ -44,4 +43,3 @@ def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disa
     yield
 
     # Tear-down.
-    shutil.rmtree(config.home)

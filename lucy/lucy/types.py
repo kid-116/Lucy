@@ -102,6 +102,10 @@ class Task(Contest):
     def get_impl_hash(self) -> str:
         return hashlib.md5(self.impl_path.read_text().encode()).hexdigest()
 
+    def exists(self) -> bool:
+        return self.impl_path.exists() and self.test_dir.exists() and self.test_in_dir.exists(
+        ) and self.test_out_dir.exists()
+
 
 @dataclass
 class Test(Task):

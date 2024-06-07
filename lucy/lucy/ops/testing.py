@@ -23,7 +23,7 @@ class TestingOps:
             assert process.stdout
             out_txt = process.stdout.read().decode()
             process.wait()
-        return Verdict.AC if out_txt.strip() == truth_txt.strip() else Verdict.WA, out_txt
+        return Verdict.AC if out_txt.strip() == truth_txt.strip() else Verdict.WA, out_txt.strip()
 
     def run(self, target: Task) -> list[Optional[Union[Literal[Verdict.AC], str]]]:
         self.__compile(target)
@@ -46,3 +46,6 @@ class TestingOps:
                 result[test.test_id] = verdict
 
         return result
+
+
+# pylint: enable=too-few-public-methods

@@ -12,11 +12,12 @@ from lucy.types import Contest, Task, Test
 
 class SetupOps:  # pylint: disable=too-few-public-methods
 
-    def __init__(self, n_threads: int = 1, auth: bool = False):
+    def __init__(self, n_threads: int = 1, auth: bool = False, force: bool = False):
         self.n_threads = n_threads
         self.auth = auth
+        self.force = force
 
-    def __parse_tasks(self, contest: Contest) -> list[Task]:
+    def parse_tasks(self, contest: Contest) -> list[Task]:
         if contest.site == Website.ATCODER:
             return list(self.__parse_atcoder_tasks(contest))
         raise NotImplementedError()
@@ -34,7 +35,7 @@ class SetupOps:  # pylint: disable=too-few-public-methods
             task_id, _ = data[0].text, data[1].text
             yield Task(contest.site, contest.contest_id, task_id)
 
-    def __parse_samples(self, task: Task) -> Tuple[Task, list[Tuple[str, str]]]:
+    def parse_samples(self, task: Task) -> Tuple[Task, list[Tuple[str, str]]]:
         browser = Browser(authenticate=task.site if self.auth else None)
         if task.site == Website.ATCODER:
             return task, list(self.__parse_atcoder_samples(task, browser))
@@ -52,10 +53,17 @@ class SetupOps:  # pylint: disable=too-few-public-methods
     def run(self, target: Contest) -> Generator[Tuple[Task, int], None, None]:
         assert not isinstance(target, Test)
 
-        tasks = [target] if isinstance(target, Task) else self.__parse_tasks(target)
+        tasks = [target] if isinstance(target, Task) else self.parse_tasks(target)
+        print(f'Found {len(tasks)} task(s).')
+        if not self.force:
+            skipped_tasks = [task.task_id for task in tasks if task.exists()]
+            print(
+                f"Skipping existing task(s) - {', '.join(skipped_tasks)}. Use `-f` to force update."
+            )
+            tasks = [task for task in tasks if not task.exists()]
 
         with ThreadPoolExecutor(max_workers=self.n_threads) as executor:
-            threads = [executor.submit(self.__parse_samples, task) for task in tasks]
+            threads = [executor.submit(self.parse_samples, task) for task in tasks]
             for thread in futures.as_completed(threads):
                 task, tests = thread.result()
                 yield task, len(tests)

@@ -33,7 +33,7 @@ class UserConfig:
         return {key: self.get(key) for key in self.configurables}
 
     def save(self) -> None:
-        with open(self.path, 'w') as cfg_file:  # pylint: disable=unspecified-encoding
+        with open(self.path, 'w', encoding='utf-8') as cfg_file:
             self.cfg.write(cfg_file)
 
     def get(self, key: str) -> Optional[str]:
