@@ -1,6 +1,8 @@
 import importlib.metadata
 import time
+import shutil
 from typing import Any, Optional
+from urllib import request
 
 import click
 
@@ -198,4 +200,29 @@ For example, AtCoder requires signing in to access **ongoing** contest tasks. To
 you must have the required credentials set in the configuration.
     """
     Auth.login(Website.from_string(site))
+    click.secho('Success!', fg='green', bold=True)
+
+
+@lucy.group('acl')
+def acl() -> None:
+    """ACL commands."""
+
+
+@acl.command('setup')
+@Arguments.version(default='v1.5.1')
+@Options.force(help_='Force update.')
+def acl_setup(version: str, force: bool) -> None:
+    """Fetches ACL. VERSION may be set to fetch a specific release. Once set up, the ACL library can
+be used in C++ source code for any task.
+    """
+    if config.storage.acl_exists and not force:
+        click.secho('ACL already exists. Use `-f` to force update.', fg='yellow', bold=True)
+        return
+    shutil.rmtree(config.storage.acl_path)
+    download_link = \
+        f'https://github.com/atcoder/ac-library/releases/download/{version}/ac-library.zip'
+    path, _ = request.urlretrieve(download_link)
+    shutil.unpack_archive(path, format='zip', extract_dir=config.storage.tmp_path)
+    shutil.copytree(config.storage.get_tmp_path(config.storage.acl_dir_name),
+                    config.storage.acl_path)
     click.secho('Success!', fg='green', bold=True)

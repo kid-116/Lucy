@@ -46,3 +46,7 @@ class Arguments:
     @staticmethod
     def config_value(required: bool = False) -> Callable[[Any], Any]:
         return click.argument('value', type=str, required=required)
+
+    @staticmethod
+    def version(default: str) -> Callable[[Any], Any]:
+        return click.argument('version', type=str, required=False, default=default)

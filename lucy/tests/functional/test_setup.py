@@ -34,6 +34,7 @@ def test_setup_force(runner: CliRunner, contest: ContestTruth) -> None:
         assert task.path.exists()
         assert task.impl_path.exists()
         assert task.test_in_dir.exists()
+        assert task.acl_path.exists()
         assert len(os.listdir(task.test_in_dir)) == task.num_samples
 
         assert task.test_out_dir.exists()

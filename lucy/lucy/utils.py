@@ -60,11 +60,14 @@ def init() -> None:
         config.snippets.dir_,
         config.commons.dir_,
         config.storage.path,
+        config.storage.acl_path,
     ]
 
     for dir_ in dir_checks:
         if not dir_.exists():
+            print(f'Creating {dir_}')
             os.makedirs(dir_)
 
     if not os.path.exists(config.commons.template_path):
+        print(f'Creating {config.commons.template_path}')
         shutil.copy(config.data_path('template_cpp.cpp'), config.commons.template_path)
