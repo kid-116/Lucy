@@ -92,11 +92,17 @@ class Task(Contest):
             self.store_test(test_txt)
         return len(test_txts)
 
+    @property
+    def acl_path(self) -> Path:
+        return self.path / config.storage.acl_dir_name
+
     def create_impl_file(self) -> Path:
         if not self.impl_path.exists():
             if not self.path.exists():
                 os.makedirs(self.path)
             shutil.copy(config.commons.template_path, self.impl_path)
+        if not self.acl_path.exists():
+            os.symlink(config.storage.acl_path, self.acl_path, target_is_directory=True)
         return self.impl_path
 
     def get_impl_hash(self) -> str:

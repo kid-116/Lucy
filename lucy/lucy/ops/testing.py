@@ -8,11 +8,12 @@ from lucy.types import Task, Test, Verdict
 # pylint: disable=too-few-public-methods
 class TestingOps:
 
-    def __init__(self, continue_: bool):
+    def __init__(self, continue_: bool = False):
         self.continue_ = continue_
 
     def __compile(self, task: Task) -> None:
-        subprocess.check_call(['g++', task.impl_path, '-o', task.bin_path])
+        subprocess.check_call(
+            ['g++', task.impl_path, '-o', task.bin_path, '--std=c++17', '-I', task.path])
 
     def __exec(self, test: Test, in_txt: str, truth_txt: str) -> Tuple[Verdict, str]:
         with subprocess.Popen([test.task.bin_path], stdin=subprocess.PIPE,

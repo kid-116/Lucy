@@ -26,6 +26,7 @@ solutions.
 - [x] Test Solution
 - [x] Setup Snippets
 - [x] Submit Solution
+- [x] ACL Support
 - [ ] What else? 🤔
 
 ## Installation
