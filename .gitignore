@@ -17,5 +17,6 @@ tests/
 .env
 
 ABC100/
+ABC300/
 
 .pytest_cache/
