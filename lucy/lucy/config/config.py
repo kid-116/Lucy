@@ -48,7 +48,7 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
     recent_tests: RecentTestsConfig
     user_cfg: UserConfig
     storage: StorageConfig
-    impl: ImplConfig = ImplConfig()
+    impl: ImplConfig
     n_threads: int = 4
     data_dir: str = 'data'
 
@@ -71,6 +71,8 @@ class ConfigClass:  # pylint: disable=too-many-instance-attributes
                     exec(f'{dest} = type_("{val}")')  # pylint: disable=exec-used
 
     def __init__(self) -> None:
+        self.impl = ImplConfig()
+
         self.home = Path(os.path.abspath(os.getenv('LUCY_HOME') or f'{os.getenv("HOME")}/.lucy'))
         if self.is_test_env:
             self.home = TestConfig.home

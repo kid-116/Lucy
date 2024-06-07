@@ -32,8 +32,11 @@ class SetupOps:  # pylint: disable=too-few-public-methods
         tasks_table = tasks_page.select('table.table tbody tr')
         for row in tasks_table:
             data = row.find_all('td')
-            task_id, _ = data[0].text, data[1].text
-            yield Task(contest.site, contest.contest_id, task_id)
+            task_id = data[0].text
+            task_url = f"{config.website[contest.site].host}{row.find_all('a')[0].get('href')}"
+            task = Task(contest.site, contest.contest_id, task_id)
+            setattr(task, 'url', task_url)
+            yield task
 
     def parse_samples(self, task: Task) -> Tuple[Task, list[Tuple[str, str]]]:
         browser = Browser(authenticate=task.site if self.auth else None)
@@ -43,8 +46,7 @@ class SetupOps:  # pylint: disable=too-few-public-methods
 
     def __parse_atcoder_samples(self, task: Task,
                                 browser: Browser) -> Generator[Tuple[str, str], None, None]:
-        task_url = f'{config.website[task.site].host}/contests/{task.contest_id}/tasks/{task.contest_id}_{task.task_id}'  # pylint: disable=line-too-long
-        browser.driver.get(task_url)
+        browser.driver.get(getattr(task, 'url'))
         task_page = browser.get_soup()
 
         for input_, output in utils.batched(task_page.select('pre[id]'), 2):
@@ -52,14 +54,16 @@ class SetupOps:  # pylint: disable=too-few-public-methods
 
     def run(self, target: Contest) -> Generator[Tuple[Task, int], None, None]:
         assert not isinstance(target, Test)
-
-        tasks = [target] if isinstance(target, Task) else self.parse_tasks(target)
+        tasks = self.parse_tasks(target)
+        if isinstance(target, Task):
+            tasks = [task for task in tasks if task.task_id == target.task_id]
         print(f'Found {len(tasks)} task(s).')
         if not self.force:
             skipped_tasks = [task.task_id for task in tasks if task.exists()]
-            print(
-                f"Skipping existing task(s) - {', '.join(skipped_tasks)}. Use `-f` to force update."
-            )
+            if skipped_tasks:
+                print(
+                    f"Skipping existing task(s) - {', '.join(skipped_tasks)}. Use `-f` to force update."  # pylint: disable=line-too-long
+                )
             tasks = [task for task in tasks if not task.exists()]
 
         with ThreadPoolExecutor(max_workers=self.n_threads) as executor:

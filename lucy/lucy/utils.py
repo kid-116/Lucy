@@ -28,7 +28,7 @@ def build(site_str: Optional[str] = None,
         return site
     if not task_id:
         return Contest(site, contest_id)
-    if not test_id:
+    if test_id is None:
         return Task(site, contest_id, task_id)
     return Test(site, contest_id, task_id, test_id)
 
