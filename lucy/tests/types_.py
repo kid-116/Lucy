@@ -22,3 +22,6 @@ class ContestTruth(Contest):
             for task_id, num_samples in task_details
         ]
         super().__init__(website, contest_id)
+
+    def get_task(self, task_id: str) -> TaskTruth:
+        return next(task for task in self.tasks if task.task_id == task_id)

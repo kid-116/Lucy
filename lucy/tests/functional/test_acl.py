@@ -3,21 +3,28 @@ from pathlib import Path
 from subprocess import CalledProcessError
 
 from click.testing import CliRunner
+import pytest
 
-from lucy.config.config import config, Website
+import conftest
+from types_ import ContestTruth
+
+from lucy.config.config import config
 from lucy.main import acl_setup
 from lucy.ops.testing import TestingOps
-from lucy.types import Task
 
 # pylint: disable=protected-access
 
 
-def test_acl(runner: CliRunner, shared_datadir: Path) -> None:
+@pytest.mark.parametrize('contest', conftest.TESTED_CONTESTS)
+def test_acl(runner: CliRunner,
+             shared_datadir: Path,
+             contest: ContestTruth,
+             task_id: str = 'A') -> None:
     result = runner.invoke(acl_setup, [])
     assert result.exit_code == 0
     assert 'Success!' in result.output
 
-    task = Task(Website.ATCODER, 'ABC100', 'A')
+    task = contest.get_task(task_id)
     acl_file = shared_datadir / 'acl.cpp'
     task.impl_path.write_text(acl_file.read_text())
 

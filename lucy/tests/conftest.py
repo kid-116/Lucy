@@ -18,7 +18,7 @@ def runner() -> CliRunner:
 
 
 TESTED_CONTESTS = [
-    contest_truths.AtCoder.ABC100,
+    contest_truths.AtCoder.ABC300,
 ]
 
 

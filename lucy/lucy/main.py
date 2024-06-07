@@ -15,7 +15,7 @@ from lucy.ops.submit import SubmitOps
 from lucy.ops.testing import TestingOps
 from lucy.params.args import Arguments
 from lucy.params.opts import Options
-from lucy.types import Contest, Task, Verdict
+from lucy.types import Contest, Task, Test, Verdict
 
 # pylint: disable=too-many-arguments
 
@@ -80,6 +80,21 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
         click.secho(f'Found {num_samples} samples for task {task.task_id}.', fg='green', bold=True)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
+
+
+@lucy.command('prune')
+@Arguments.site(required=True)
+@Arguments.contest_id(required=True)
+@Arguments.task_id(required=False)
+@Arguments.test_id(required=False)
+def prune(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[int]) -> None:
+    """Deletes a CONTEST_ID or a particular TASK_ID or TEST_ID."""
+    target = utils.build(site, contest_id, task_id, test_id)
+    assert isinstance(target, Contest)
+    if isinstance(target, Test):
+        target.delete()
+        return
+    shutil.rmtree(target.path)
 
 
 @lucy.command('test')

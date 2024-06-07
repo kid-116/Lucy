@@ -8,7 +8,7 @@ import conftest
 from contest_truths import AtCoder
 from types_ import ContestTruth
 
-from lucy.main import setup
+from lucy.main import prune, setup
 
 # pylint: disable=too-many-arguments
 
@@ -55,7 +55,7 @@ def test_setup_hidden(runner: CliRunner, contest: ContestTruth, task_id: str, te
     result = runner.invoke(setup, [str(contest.site), contest.contest_id, task_id, test_id])
     assert result.exit_code == 0
     task = contest.get_task(task_id)
-    assert task.get_num_tests() == 7
-    test = task.get_test(6)
+    assert task.get_num_tests() == 1
+    test = task.get_test(0)
     assert (in_txt, out_txt) == test.load()
-    test.delete()
+    runner.invoke(prune, [str(contest.site), contest.contest_id])

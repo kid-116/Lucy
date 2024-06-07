@@ -6,7 +6,6 @@ from click.testing import CliRunner
 import pytest
 
 import conftest
-from contest_truths import AtCoder
 from types_ import ContestTruth
 
 from lucy.config.config import config
@@ -42,8 +41,9 @@ def test_correct(runner: CliRunner,
                                                                   ord('A')].num_samples
 
 
+@pytest.mark.parametrize('contest', conftest.TESTED_CONTESTS)
 def test_unchanged_soln_warning(runner: CliRunner,
-                                contest: ContestTruth = AtCoder.ABC100,
+                                contest: ContestTruth,
                                 task_id: str = 'A') -> None:
     config.recent_tests.get_cache().clear()
 
@@ -56,9 +56,8 @@ def test_unchanged_soln_warning(runner: CliRunner,
     assert config.recent_tests.warning_msg in result.output
 
 
-def test_active_flag(runner: CliRunner,
-                     contest: ContestTruth = AtCoder.ABC100,
-                     task_id: str = 'A') -> None:
+@pytest.mark.parametrize('contest', conftest.TESTED_CONTESTS)
+def test_active_flag(runner: CliRunner, contest: ContestTruth, task_id: str = 'A') -> None:
     task_path = contest.get_task(task_id).path
 
     os.chdir(task_path)
