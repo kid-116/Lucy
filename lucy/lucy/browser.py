@@ -43,6 +43,8 @@ class Browser:
         if authenticate:
             self.authenticate(authenticate)
 
+    # pylint: enable=too-many-arguments
+
     def get_soup(self) -> BeautifulSoup:
         page = self.driver.page_source
         return BeautifulSoup(page, 'lxml')
@@ -64,3 +66,6 @@ class Browser:
         contents = path.read_text()
         config.storage.delete_tmp(filename)
         return contents
+
+
+# pylint: enable=too-few-public-methods

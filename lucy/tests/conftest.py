@@ -44,4 +44,4 @@ def setup_env(runner: CliRunner) -> Generator[None, None, None]:  # pylint: disa
     yield
 
     # Tear-down.
-    shutil.rmtree(config.home)
+    # shutil.rmtree(config.home)

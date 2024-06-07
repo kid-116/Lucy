@@ -52,8 +52,9 @@ By default, the `entry_dir` is `$LUCY_HOME/common`. The global snippet file is a
 @Arguments.test_id(required=False, type_=str)
 @Options.n_threads()
 @Options.authenticate()
+@Options.force(help_='Force update.')
 def setup(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[str],
-          n_threads: int, auth: bool) -> None:
+          n_threads: int, auth: bool, force: bool) -> None:
     """Sets up directory structure for a contest.
 
 Example:
@@ -73,7 +74,7 @@ It can also be used to fetch a hidden test-case revealed once the contest is com
         return
     assert isinstance(target, Contest)
     click.echo(f'Using {n_threads} thread(s).')
-    for task, num_samples in SetupOps(n_threads, auth).run(target):
+    for task, num_samples in SetupOps(n_threads, auth, force).run(target):
         click.secho(f'Found {num_samples} samples for task {task.task_id}.', fg='green', bold=True)
     end = time.time()
     click.secho(f'Finished in {end - start} sec(s).')
@@ -118,11 +119,14 @@ run.
         if isinstance(result, str) and verbose:
             in_txt, truth_txt = target.get_test(idx).load()
             click.secho("Input:", bg='white', bold=True)
-            print(in_txt.strip())
+            print(in_txt)
             click.secho("Output:", bg='red', bold=True)
-            print(result.strip())
+            print(result)
             click.secho("Expected:", bg='green', bold=True)
-            print(truth_txt.strip())
+            print(truth_txt)
+
+
+# pylint: enable=too-many-locals
 
 
 @lucy.command('submit')
