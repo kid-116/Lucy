@@ -8,8 +8,8 @@ dependencies = [
     "click",
     "lxml",
     "python-dotenv",
-    "requests",
     "selenium",
+    "termcolor",
 ]
 requires-python = ">=3.10"
 authors = [{ name = "Mehul Todi", email = "mehul116.dev@gmail.com" }]

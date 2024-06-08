@@ -12,7 +12,7 @@ from lucy.config.config import config, Website
 from lucy.ops.setup import SetupOps
 from lucy.ops.snippets import SnippetOps
 from lucy.ops.submit import SubmitOps
-from lucy.ops.testing import TestingOps
+from lucy.ops.testing import TestingOps, DiffOps
 from lucy.params.args import Arguments
 from lucy.params.opts import Options
 from lucy.types import Contest, Task, Test, Verdict
@@ -105,13 +105,20 @@ def prune(site: str, contest_id: str, task_id: Optional[str], test_id: Optional[
 @Options.continue_('Do not stop on a `WA` verdict.')
 @Options.active()
 @Options.verbose()
+@Options.diff(help_='Show diff for WA verdicts.')
 # pylint: disable=too-many-locals
 def test(site: Optional[str], contest_id: Optional[str], task_id: Optional[str],
-         test_id: Optional[int], verbose: bool, continue_: bool, active: bool) -> None:
+         test_id: Optional[int], verbose: bool, continue_: bool, active: bool, diff: bool) -> None:
     """Runs tests for a TASK_ID in a CONTEST_ID for a SITE. If --test-id is not set, all tests are
 run.
 
     lucy test AtCoder ABC353 A 1
+
+Use the `-d` flag to show the diff for WA verdicts. Once enabled, the matching tokens will be
+colored `green` while the differing implementation output tokens will be colored `red`. Any extra
+tokens will be annotated with a `~` symbol and colored `yellow` while the missing tokens will be
+shown with a `yellow ?`. Any extra output lines will be annotated with a `(-)` suffix and any
+missing output lines will be annotated with a `(+)` prefix.
     """
     target = utils.build(site, contest_id, task_id, test_id)
     if active:
@@ -137,10 +144,13 @@ run.
             in_txt, truth_txt = target.get_test(idx).load()
             click.secho("Input:", bg='white', bold=True)
             print(in_txt)
-            click.secho("Output:", bg='red', bold=True)
-            print(result)
             click.secho("Expected:", bg='green', bold=True)
             print(truth_txt)
+            click.secho("Output:", bg='red', bold=True)
+            if diff:
+                DiffOps(result, truth_txt).print()
+            else:
+                print(result)
 
 
 # pylint: enable=too-many-locals

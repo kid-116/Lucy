@@ -67,3 +67,7 @@ class Options:
     @staticmethod
     def hidden(help_: str) -> Callable[[Any], Any]:
         return click.option('-h', '--hidden', 'hidden', is_flag=True, default=False, help=help_)
+
+    @staticmethod
+    def diff(help_: str) -> Callable[[Any], Any]:
+        return click.option('-d', '--diff', 'diff', is_flag=True, default=False, help=help_)
