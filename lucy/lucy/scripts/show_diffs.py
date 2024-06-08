@@ -3,7 +3,7 @@ import termcolor
 from lucy.ops.testing import DiffOps
 
 
-def main():
+def main() -> None:
     tests = [('1 2 3', '1 2 3'), ('1 2', '1 2 3'), ('2 3', '1 2 3'), ('2 3\n1', '2 3'),
              ('2 3', '2 3\n1'), ('1 2 3', '1 2 4'), ('1 2 3', '1 2'), ('1 3 4 2', '2 3 1')]
     for test in tests:
